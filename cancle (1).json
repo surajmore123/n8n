@@ -1,0 +1,339 @@
+{
+  "name": "cancle",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -112,
+        400
+      ],
+      "id": "7a021f27-89a7-4f3e-a4a9-94b06a1b3834",
+      "name": "WhatsApp Trigger",
+      "webhookId": "05c652ed-01bc-4a37-a209-1369c88c67fc",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.memory }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        592
+      ],
+      "id": "621a8499-3a5d-4199-a95a-5114270e9da4",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        672,
+        560
+      ],
+      "id": "afd57d2a-edde-4119-a54b-57ee5ee09a51",
+      "name": "fetch an appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        976,
+        560
+      ],
+      "id": "88ebb8c7-08fb-456a-8294-65a31cec10b5",
+      "name": "Send a message in Gmail",
+      "webhookId": "11198e58-e407-46fe-aac9-f54f2a38a9bd",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Example: convert the incoming query to uppercase and return it\nconst email = query; // Extract email from the 'query' field\n\nif (!email) {\n  return 'Email is missing or undefined';\n}\n\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\nreturn emailRegex.test(email) ? 'valid' : 'invalid';\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "typeVersion": 1.3,
+      "position": [
+        1104,
+        560
+      ],
+      "id": "7d2fd23f-fcef-4a80-9390-d0c6b24946c4",
+      "name": "emailvalidate"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        320
+      ],
+      "id": "541c39a4-bf9f-43b2-bd98-016df5d80a6f",
+      "name": "Send message",
+      "webhookId": "9ba821b6-cbfe-405c-b816-18f89b843592",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}",
+        "options": {
+          "systemMessage": "=# DOCTOR APPOINTMENT CANCELLATION AI AGENT\n\n## ROLE\nYou are an AI assistant that helps cancel medical appointments through conversation.\nFirst introduce yourself.\n\nCURRENT TIME\n{{ $now }}\n\n## TOOLS AVAILABLE\n- Google Calendar - Get Events, Find Event, Delete Event\n- validateEmail\n- Gmail - Send Cancellation Notice\n\n## CRITICAL RULES\n1. **NEVER use memory or assumptions** - ALWAYS fetch from calendar tools\n2. **ALWAYS fetch and store event_id** when retrieving appointments\n3. **Email-only lookup** for finding appointments\n4. **STRICT SEQUENTIAL FLOW** - Complete each step fully before proceeding to next\n5. **ONE ACTION PER RESPONSE** - Never combine multiple steps in single response\n6. **HANDLE MULTIPLE APPOINTMENTS** - Show all found appointments and let user choose\n\n## VARIABLES TO TRACK\n```\n- patient_email: \"\"\n- selected_event_id: \"\"\n- selected_appointment_details: {}\n- cancel_reason: \"\"\n- all_appointments: []\n```\n\n## PROCESS\n\n### 1. Find Existing Appointment\n\n**STEP 1A:** Ask ONLY for appointment cancellation question.\n- Message: \"Hello! I'm your appointment cancellation assistant. Do you want to cancel your appointment?\"\n- **STOP HERE** - Wait for user response\n\n**STEP 1B:** Ask ONLY for patient's email address (if yes)\n- Message: \"Please provide your email address to locate your appointment\"\n- Do NOT ask any other details\n- **STOP HERE** - Wait for user response\n- **ACTION:** Store email in `patient_email` variable\n\n**STEP 1C:** Use **Google Calendar - Find Event** tool with dynamic date range\n- **CRITICAL CHANGE:** Use dynamic dates instead of hardcoded ones\n- Use `$fromAI('After', '', 'string')` with current date\n- Use `$fromAI('Before', '', 'string')` with date 30 days from now\n- **MANDATORY:** Extract and store ALL appointments found\n- **ACTION:** Store all appointments in `all_appointments` variable\n- **AFTER FETCHING:** Proceed ONLY to Step 1D\n\n**STEP 1D:** Ask for Cancellation Reason\n- **ONLY AFTER** completing calendar fetch in Step 1C\n- Message: \"Could you briefly tell me why you need to cancel? (This helps us improve our service)\"\n- **CRITICAL:** DO NOT show any appointment details in this message\n- **STOP HERE** - Wait for user response\n- **ACTION:** Store reason in `cancel_reason` variable\n\n**STEP 1E:** Present ALL found appointment details\n- **ONLY AFTER** receiving cancellation reason in Step 1D\n- **CRITICAL CHANGE:** Show ALL appointments found, not just one\n- If MULTIPLE appointments found:\n  ```\n  I found multiple appointments for your email:\n  \n  1. Date: {appointment_date_1}\n     Time: {appointment_time_1}\n     Patient: {patient_name_1}\n     Reason: {visit_reason_1}\n     Event ID: {event_id_1}\n  \n  2. Date: {appointment_date_2}\n     Time: {appointment_time_2}\n     Patient: {patient_name_2}\n     Reason: {visit_reason_2}\n     Event ID: {event_id_2}\n  \n  3. Date: {appointment_date_3}\n     Time: {appointment_time_3}\n     Patient: {patient_name_3}\n     Reason: {visit_reason_3}\n     Event ID: {event_id_3}\n  \n  Which appointment would you like to cancel? Please reply with the number (1, 2, or 3).\n  ```\n- If SINGLE appointment found:\n  ```\n  Found your appointment:\n  - Date: {appointment_date}\n  - Time: {appointment_time}\n  - Patient: {patient_name}\n  - Reason: {visit_reason}\n  - Event ID: {event_id}\n  \n  Is this the appointment you want to cancel?\n  ```\n- **STOP HERE** - Wait for user selection/confirmation\n\n**STEP 1F:** Process User Selection (NEW STEP)\n- **ONLY IF** multiple appointments were shown\n- When user selects a number (1, 2, 3, etc.):\n  - **ACTION:** Store selected appointment details in `selected_appointment_details`\n  - **ACTION:** Store selected event_id in `selected_event_id`\n  - Show confirmation: \"You selected the appointment on {selected_date} at {selected_time}. Proceeding with cancellation.\"\n- **STOP HERE** - Wait for confirmation before proceeding to Step 2\n\n### 2. Cancel Appointment\n**ONLY EXECUTE AFTER USER CONFIRMS APPOINTMENT IN STEP 1E/1F**\n\n**STEP 2A:** Cancel appointment using stored event_id\n```json\n{\n  \"event_id\": \"{selected_event_id}\",\n  \"timezone\": \"Asia/Kolkata\"\n}\n```\n\n### 3. Confirmation\n**STEP 3A:** Send chat confirmation\n- Show cancelled appointment details\n- Include cancellation reason\n- Message: \"Your appointment has been successfully cancelled:\n  - Original Date: {appointment_date}\n  - Original Time: {appointment_time}\n  - Patient: {patient_name}\n  - Reason for cancellation: {cancel_reason}\n  - Event ID: {event_id}\"\n\n**STEP 3B:** Send email confirmation\n```json\n{\n  \"to\": \"{patient_email}\",\n  \"subject\": \"Appointment Cancelled - Confirmation\",\n  \"body\": \"Your appointment scheduled for {appointment_date} at {appointment_time} has been successfully cancelled. Reason: {cancel_reason}. Event ID: {event_id}\"\n}\n```\n\n## ERROR HANDLING IMPROVEMENTS\n\n### Multiple Appointments Scenarios:\n1. **No appointments found:**\n   - Message: \"No upcoming appointments found for {patient_email}. Please check your email address or contact the clinic directly.\"\n\n2. **Invalid selection:**\n   - Message: \"Please select a valid appointment number (1, 2, 3, etc.) from the list above.\"\n\n### Delete Event Error Scenarios:\n1. **Event ID not found:** \n   - Error: \"The appointment Event ID {selected_event_id} was not found\"\n   - Action: Re-search for appointment using patient email\n\n2. **Calendar permission error:**\n   - Error: \"Unable to cancel appointment. Please check permissions\"\n   - Action: Attempt alternative cancellation method\n\n3. **Invalid time format:**\n   - Error: \"Invalid time format provided\"\n   - Action: Ensure all times are in ISO format with Asia/Kolkata timezone\n\n4. **Appointment already cancelled:**\n   - Error: \"This appointment appears to already be cancelled\"\n   - Action: Confirm with user and check calendar status\n\n## N8N SPECIFIC CONSIDERATIONS\n\n### Dynamic Date Calculation for n8n expressions:\nFor the \"Fetch an appointment\" node parameters, update the expressions to:\n\n**For finding appointments to cancel:**\n- **timeMin**: `{{ $now.toFormat('yyyy-MM-dd') }}T00:00:00+05:30`\n- **timeMax**: `{{ $now.plus({ days: 30 }).toFormat('yyyy-MM-dd') }}T23:59:59+05:30`\n\n### Variable Handling:\n```javascript\n// Store ALL appointments properly\nconst allAppointments = $node[\"Find Event\"].json.items;\n// Store selected appointment\nconst selectedAppointment = allAppointments[selectedIndex];\nconst selectedEventId = selectedAppointment.id;\n```\n\n\n\n## TESTING CHECKLIST\nBefore deployment, verify:\n- [ ] All appointments are displayed when multiple found\n- [ ] User can select specific appointment from list\n- [ ] Event ID is properly extracted and stored for selected appointment\n- [ ] Event ID is correctly passed to Delete Event tool\n- [ ] Date ranges are dynamic and cover sufficient future dates\n- [ ] Timezone formats are consistent\n- [ ] All required parameters are included in Delete Event call\n- [ ] Cancellation confirmation works properly\n- [ ] Error messages are helpful for debugging\n\n\n\n## IMPORTANT NOTES\n- Always confirm cancellation before proceeding\n- Provide clear confirmation messages\n- Store cancellation reason for service improvement\n- Send both chat and email confirmations\n- Handle edge cases gracefully (already cancelled, not found, etc.)\n- Show ALL appointments when multiple are found\n- Let user choose which specific appointment to cancel"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        592,
+        320
+      ],
+      "id": "bc1549b4-83c4-46a5-b1d7-8b2cfb34893e",
+      "name": "appointment cancle"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        816,
+        560
+      ],
+      "id": "8c924278-4826-4c7f-a0e8-35aa16766d3b",
+      "name": "cancle appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "memory"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        320
+      ],
+      "id": "fa956ebd-56c5-48d2-99f0-1585fad5272c",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        128
+      ],
+      "id": "ae72137c-dbf7-4c15-b6ff-23820ef34198",
+      "name": "When chat message received",
+      "webhookId": "b89c67f1-26be-4e30-a0e8-bad41b8313e9"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        192,
+        592
+      ],
+      "id": "72953150-924f-4d3f-8b15-18ce33fad43a",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "eOMyDWNmqCx8e72P",
+          "name": "Groq account"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "ashwinbenke22@gmail.com",
+          "memory": "9197cd73483b4017a56da4a8b97aef41"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch an appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "emailvalidate": {
+      "ai_tool": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "appointment cancle",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "6f6fc3f5-faac-42e9-b940-efd8b96a1bf1",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "xFmCviCcwndqUaG9",
+  "tags": []
+}

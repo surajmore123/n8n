@@ -1,0 +1,1215 @@
+{
+  "name": "prescription Summarizer",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "f78ccc19-75a3-41b4-9e92-09bbde75b3f0",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -1488,
+        960
+      ],
+      "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "fB34C0tknC2v9k3g",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.video.id }}"
+      },
+      "id": "63ebce08-0645-48b9-878f-e5cc02d3f6a2",
+      "name": "Get Video URL",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -688,
+        848
+      ],
+      "typeVersion": 1,
+      "webhookId": "625ed82c-e471-4ec6-84a7-703f1b169fd7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.image.id  }}"
+      },
+      "id": "c707396e-2bbf-49bb-8398-fa17d2b9609a",
+      "name": "Get Image URL",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -672,
+        1088
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "a22f4db6-7dec-4c24-a152-d4dcbdc7942a",
+      "name": "Download Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -528,
+        848
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "318550dd-b3d2-441b-94c6-c742b5380c00",
+      "name": "Download Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -464,
+        1088
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.from }}"
+      },
+      "id": "1789e414-0fda-408a-9638-a9287aabd074",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        736,
+        1424
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('Split Out Message Parts').item.json.type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            },
+            {
+              "id": "da4b602a-28ca-4b0d-a747-c3d3698c3731",
+              "name": "message_caption",
+              "type": "string",
+              "value": "={{ $('Redirect Message Types').item.json.video && $('Redirect Message Types').item.json.video.caption || '' }}\n{{ $('Redirect Message Types').item.json.image && $('Redirect Message Types').item.json.image.caption || ''}}\n{{ $('Redirect Message Types').item.json.audio && $('Redirect Message Types').item.json.audio.caption || ''}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "46574c90-f626-43fd-8041-bbea26a74055",
+      "name": "Get User's Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        384,
+        1040
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "id": "d680085c-5bf4-49a3-822b-cf4bf40000a1",
+      "name": "Split Out Message Parts",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -1248,
+        960
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'audio' && Boolean($json.audio) }}",
+                    "rightValue": "audio"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Audio Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "82aa5ff4-c9b6-4187-a27e-c7c5d9bfdda0",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'video' && Boolean($json.video) }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Video Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "id": "05b30af4-967b-4824-abdc-84a8292ac0e5",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'image' && Boolean($json.image) }}",
+                    "rightValue": ""
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Image Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "facc6e1c-7180-4fef-a6a6-7f308c8f084c",
+                    "leftValue": "={{$json.document.mime_type == \"image/png\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "document image"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Text Message"
+        }
+      },
+      "id": "4e8e5181-217e-4d8b-9a5c-aaa835258062",
+      "name": "Redirect Message Types",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -976,
+        1040
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "content": "## 1. WhatsApp Trigger\n[Learn more about the WhatsApp Trigger](https://docs.n8n.io/integrations/builtin/trigger-nodes/n8n-nodes-base.whatsapptrigger)\n\nTo start receiving WhatsApp messages in your workflow, there are quite a few steps involved so be sure to follow the n8n documentation. When we recieve WhatsApp messages, we'll split out the messages part of the payload and handle them depending on the message type using the Switch node.",
+        "height": 245.72612197928734,
+        "width": 335.8011507479863,
+        "color": 7
+      },
+      "id": "a3f916ba-eaa8-479d-b0e1-66d165f7f683",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1488,
+        672
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 2. Transcribe Audio Messages 💬\nFor audio messages or voice notes, we can use GPT4o to transcribe the message for our AI Agent.",
+        "height": 97.23360184119679,
+        "width": 356.65822784810103,
+        "color": 7
+      },
+      "id": "0d3a6841-0ff2-412d-8efb-f8c41434dfef",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        368
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 3. Describe Video Messages 🎬\nFor video messages, one approach is to use a Multimodal Model that supports parsing video. Currently, Google Gemini is a well-tested service for this task. We'll need to use the HTTP request node as currrently n8n's LLM node doesn't currently support video binary types.",
+        "height": 127.13555811277331,
+        "width": 492.5258918296896,
+        "color": 7
+      },
+      "id": "087f015a-bb64-478a-8db9-9890e5d9892a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        688
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 4. Analyse Image Messages 🏞️\nFor image messages, we can use GPT4o to explain what is going on in the message for our AI Agent.",
+        "height": 97.23360184119679,
+        "width": 356.65822784810103,
+        "color": 7
+      },
+      "id": "0995d183-672a-431a-b93c-931e7e019ea2",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        960
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### 5. Text summarizer 📘\nFor text messages, we don't need to do much transformation but it's nice to summarize for easier understanding.",
+        "height": 97.23360184119679,
+        "width": 428.24395857307246,
+        "color": 7
+      },
+      "id": "12ed6fbc-c561-4978-b6dd-109258442346",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        1376
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "amount": 0
+      },
+      "id": "73a48612-f81a-48b6-9e39-c1e4be6a6164",
+      "name": "Get Text",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -688,
+        1488
+      ],
+      "webhookId": "99b49c83-d956-46d2-b8d3-d65622121ad9",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "content": "## 6. Generate Response with AI Agent\n[Read more about the AI Agent node](https://docs.n8n.io/integrations/builtin/cluster-nodes/root-nodes/n8n-nodes-langchain.agent)\n\nNow that we'll able to handle all message types from WhatsApp, we could do pretty much anything we want with it by giving it our AI agent. Examples could include handling customer support, helping to book appointments or verifying documents.\n\nIn this demonstration, we'll just create a simple AI Agent which responds to our WhatsApp user's message and returns a simple response.",
+        "height": 273.14522439585744,
+        "width": 500.7797468354428,
+        "color": 7
+      },
+      "id": "8031aaed-71db-4f61-99f7-5fe6a7e3b393",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        576,
+        720
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## 7. Respond to WhatsApp User\n[Read more about the Whatsapp node](https://docs.n8n.io/integrations/builtin/app-nodes/n8n-nodes-base.whatsapp/)\n\nTo close out this demonstration, we'll simple send a simple text message back to the user. Note that this WhatsApp node also allows you to send images, audio, videos, documents as well as location!",
+        "height": 211.45776754890682,
+        "width": 384.12151898734186,
+        "color": 7
+      },
+      "id": "ad43c060-fc37-43d9-972f-755980dcfc9c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1344,
+        1168
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "72f573b2-14e8-4e51-9c70-cf5b34c11cc2",
+      "name": "Respond to User",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1040,
+        1136
+      ],
+      "typeVersion": 1,
+      "webhookId": "77a0150a-8819-49b2-88c7-ab75560f62e7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Try It Out!\n\n### This n8n template demonstrates the beginnings of building your own n8n-powered WhatsApp chatbot! Under the hood, utilise n8n's powerful AI features to handle different message types and use an AI agent to respond to the user. A powerful tool for any use-case!\n\n* Incoming WhatsApp Trigger provides a way to get messages into the workflow.\n* The message received is extracted and sent through 1 of 4 branches for processing.\n* Each processing branch uses AI to analyse, summarize or transcribe the message so that the AI agent can understand it.\n* The AI Agent is used to generate a response generally and uses a wikipedia tool for more complex queries.\n* Finally, the response message is sent back to the WhatsApp user using the WhatsApp node.\n\n### Need Help?\nJoin the [Discord](https://discord.com/invite/XPKeKXeB7d) or ask in the [Forum](https://community.n8n.io/)!",
+        "height": 562.8608514850005,
+        "width": 470.66513233601853
+      },
+      "id": "b0c3b70d-b1b7-4979-9fae-debb133a200a",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2048,
+        512
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "### Activate workflow to use!\nYou must activate the workflow to use this WhatsApp Chabot. If you are self-hosting, ensure WhatsApp is able to connect to your server.",
+        "height": 96.0144533433243,
+        "width": 473.28063885246377,
+        "color": 5
+      },
+      "id": "ed10ff41-9542-4984-8e4d-c77a724143bf",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2048,
+        1088
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Prescription Summary Agent Prompt\n\n## Objective\nCreate a comprehensive, standardized summary of medical prescriptions from various formats (digital, handwritten, or military/institutional forms) while maintaining accuracy and medical safety.\n\n## Input Processing Instructions\n\n### 1. Patient Information Extraction\n- **Patient Demographics**: Name, age, gender, weight (if available)\n- **Contact Information**: Address, phone number (when present)\n- **Patient ID**: Any reference numbers or medical record identifiers\n- **Date of Prescription**: Issue date and time\n\n### 2. Healthcare Provider Information\n- **Doctor Details**: Name, credentials, registration numbers\n- **Medical Facility**: Clinic/hospital name, address, contact information\n- **Prescription Number**: Any tracking or reference numbers\n\n### 3. Clinical Information\n- **Vital Signs**: Temperature, blood pressure, heart rate, oxygen saturation\n- **Clinical Diagnosis**: Primary and secondary diagnoses\n- **Symptoms/Complaints**: Chief complaints or presenting symptoms\n- **Clinical Notes**: Any additional medical observations\n\n### 4. Medication Details Extraction\nFor each prescribed medication, extract:\n- **Medication Name**: Generic and brand names\n- **Dosage Form**: Tablet, capsule, syrup, injection, etc.\n- **Strength**: Concentration or potency\n- **Dosing Instructions**: \n  - Frequency (daily, twice daily, etc.)\n  - Timing (morning, evening, before/after meals)\n  - Quantity per dose\n- **Duration**: Treatment period or total quantity\n- **Route of Administration**: Oral, topical, injection, etc.\n\n### 5. Additional Instructions\n- **Dietary Advice**: Food restrictions or recommendations\n- **Special Instructions**: Storage, administration techniques\n- **Follow-up Instructions**: Next appointment dates\n- **Warnings or Precautions**: Important safety information\n\n## Output Format Requirements\n\n### Summary Structure:\n```\n**PRESCRIPTION SUMMARY**\n\n**Patient Information:**\n- Name: [Patient Name]\n- Age/Gender: [Age]/[Gender]\n- Date: [Prescription Date]\n- Provider: Dr. [Doctor Name], [Credentials]\n- Facility: [Medical Facility Name]\n\n**Clinical Information:**\n- Diagnosis: [Primary diagnosis]\n- Vital Signs: [If available]\n- Symptoms: [Chief complaints]\n\n**Prescribed Medications:**\n1. **[Medication Name]**\n   - Form: [Tablet/Capsule/Syrup]\n   - Dosage: [Strength and quantity]\n   - Instructions: [Frequency and timing]\n   - Duration: [Treatment period]\n\n2. **[Medication Name]**\n   - [Similar format for each medication]\n\n**Additional Instructions:**\n- [Dietary advice, special instructions]\n- [Follow-up appointments]\n- [Important warnings]\n\n**Prescription Validity:** [Expiration date if mentioned]\n```\n\n## Processing Guidelines\n\n### 1. Accuracy Requirements\n- Double-check medication names and dosages\n- Preserve exact dosing instructions\n- Maintain original medical terminology\n- Flag any unclear or ambiguous information\n\n### 2. Safety Considerations\n- Highlight any potential drug interactions (if multiple medications)\n- Note any dosage concerns or unusual prescriptions\n- Preserve all warning labels and precautions\n- Maintain confidentiality standards\n\n### 3. Format Standardization\n- Convert handwritten prescriptions to clear, typed format\n- Standardize medical abbreviations (explain when necessary)\n- Organize information in consistent structure\n- Preserve important timing and sequence information\n\n### 4. Quality Checks\n- Verify completeness of critical information\n- Check for logical consistency in dosing\n- Ensure all medications are properly categorized\n- Validate that instructions are clear and actionable\n\n## Special Handling Instructions\n\n### For Handwritten Prescriptions:\n- Use medical knowledge to interpret unclear handwriting\n- Flag uncertain readings with [UNCLEAR] notation\n- Cross-reference medication names with common prescriptions\n\n### For Digital/Electronic Prescriptions:\n- Preserve all structured data elements\n- Maintain formatting of tables and charts\n- Include any embedded medical codes or references\n\n### For Military/Institutional Forms:\n- Include all form numbers and institutional identifiers\n- Preserve military medical terminology\n- Note any special authorization requirements\n\n## Error Handling\n- If medication name is unclear: [MEDICATION NAME UNCLEAR - REQUIRES VERIFICATION]\n- If dosage is ambiguous: [DOSAGE REQUIRES CLARIFICATION]\n- If critical information is missing: [MISSING: specify what information]\n\n## Output Quality Standards\n- Professional medical language\n- Clear, unambiguous instructions\n- Comprehensive coverage of all prescription elements\n- Easy-to-read formatting for healthcare providers and patients\n- Preservation of all medically relevant information\n\nThis prompt ensures consistent, accurate, and comprehensive summarization of prescriptions while maintaining medical safety standards and accommodating various prescription formats.",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        }
+      },
+      "id": "b87b0053-40a8-4cbb-8e61-cb9a334dafc0",
+      "name": "Image Explainer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        32,
+        1216
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "06cffbf6-2c3d-4c2f-bd78-6aeabcb34d57",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        160,
+        848
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n### 🚨 Google Gemini Required!\nNot using Gemini? Feel free to swap this out for any Multimodal Model that supports Video.",
+        "height": 305.35604142692785,
+        "width": 260
+      },
+      "id": "3323170e-cb89-45fd-89d5-0bd8fcea7728",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        832
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "b457124d-65e4-4875-a08c-85d349bac767",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        496,
+        1344
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "s0KLMfyo2TK6GhlQ",
+          "name": "J"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n### 🚨 Google Gemini Required!\nNot using Gemini? Feel free to swap this out for any Multimodal Model that supports Audio.",
+        "height": 294.22048331415436,
+        "width": 260
+      },
+      "id": "8da37613-3a8e-4a7c-8f5d-c1979a331d01",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        480
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n \"contents\": [{\n \"parts\":[\n {\"text\": \"Describe this video\"},\n {\"inlineData\": {\n \"mimeType\": `video/${$binary.data.fileExtension}`,\n \"data\": $input.item.binary.data.data }\n }\n ]\n }]\n}\n}}",
+        "options": {}
+      },
+      "id": "e6f5d896-7d40-4d5c-a445-de3153c6cf95",
+      "name": "Google Gemini Video",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -80,
+        848
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tZzmSrjXSgme8aqI",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "id": "9ea6d31a-cf11-4f87-9965-daeb25edcda7",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        144,
+        1664
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tZzmSrjXSgme8aqI",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Time-Slot Based Medication Reminder System\n\n## Your Mission\nCreate Google Calendar events based on TIME SLOTS (morning, afternoon, evening, night) that include ALL medicines for that time slot. Group medicines by timing, not by individual medicine.\n\n## Step 1: Extract Patient Information & Group Medicines\n\n### Extract Patient Details:\n- **Patient Name**: Full name from prescription\n- **Patient Phone**: Contact number (if available)\n- **Doctor Name**: Prescribing physician\n- **Prescription Date**: Date of issue\n\n### Group Medicines by Time Slots:\n- **🌅 MORNING (8:00 AM)**: List all medicines to take in morning\n- **☀️ AFTERNOON (2:00 PM)**: List all medicines to take in afternoon  \n- **🌆 EVENING (7:00 PM)**: List all medicines to take in evening\n- **🌙 NIGHT (10:00 PM)**: List all medicines to take in night\n\n### Meal Timing Adjustments:\n- **BEFORE FOOD**: Use standard times (8 AM, 2 PM, 7 PM, 10 PM)\n- **AFTER FOOD**: Add 1 hour (9 AM, 3 PM, 8 PM, 11 PM)\n\n## Step 3: Calculate Total Events & Execute All at Once\n\n### Pre-Calculate All Events:\n- **Determine maximum treatment duration** among all medicines\n- **Identify active time slots** (morning, afternoon, evening, night)\n- **Calculate total events needed** = Active time slots × Treatment days\n- **Plan all events before execution**\n\n### Single Execution Strategy:\n```\nEXECUTE ALL CALENDAR EVENTS IN ONE GO:\n\n1. Calculate: [Total events needed]\n2. Prepare: All event details in advance\n3. Execute: Use calendar tool for each event without interruption\n4. Verify: Confirm all events created successfully\n5. Report: Final summary only after ALL events are created\n```\n\n### Example Pre-Calculation:\n- **Treatment duration**: 10 days\n- **Active time slots**: Morning, Afternoon, Night (3 slots)\n- **Total events to create**: 3 × 10 = 30 events\n- **Execute all 30 events using calendar tool consecutively**\n\n## Step 3: Daily Event Structure\n\n### Morning Event Example:\n```\nEvent Title: \"🌅 Morning Medications (Day 1 of 10)\"\nTime: 8:00 AM IST\nDescription: \n\"MORNING DOSE - Day 1\n\n💊 DOLO - 1 tablet (Before food)\n💊 Paracetamol - 1 capsule (Before food) \n💊 OG 100mg - 1 tablet (After food - take at 9 AM)\n💊 Itraconazole - 1/2 tablet (After food - take at 9 AM)\n\n⏰ Timing Instructions:\n- Before food medicines: Take at 8:00 AM\n- After food medicines: Take at 9:00 AM\n\n👨‍⚕️ Prescribed by: Dr. [Name]\n📞 Contact doctor for any concerns\"\n```\n\n## Step 4: Mass Calendar Event Creation\n\n### Execute All Events Consecutively:\n\n**DO NOT create events one by one with checks - Execute ALL at once:**\n\n```\nFor Day 1 to Day [Max]:\n  If morning medicines exist:\n    Use Calendar Tool → Morning Event for Day X\n  If afternoon medicines exist:  \n    Use Calendar Tool → Afternoon Event for Day X\n  If night medicines exist:\n    Use Calendar Tool → Night Event for Day X\n```\n\n### Calendar Tool Parameters (Execute for ALL events):\n```\nMorning Events (Execute for all days):\n- Summary: \"🌅 [Patient Name] - Morning Meds (Day [X])\"\n- Start: [Date]T08:00:00+05:30\n- Description: [Patient details + All morning medicines]\n\nAfternoon Events (Execute for all days if applicable):\n- Summary: \"☀️ [Patient Name] - Afternoon Meds (Day [X])\"  \n- Start: [Date]T14:00:00+05:30\n- Description: [Patient details + All afternoon medicines]\n\nNight Events (Execute for all days):\n- Summary: \"🌙 [Patient Name] - Night Meds (Day [X])\"\n- Start: [Date]T22:00:00+05:30  \n- Description: [Patient details + All night medicines]\n```\n\n### Critical Execution Rule:\n**USE CALENDAR TOOL FOR ALL EVENTS WITHOUT INTERRUPTION - DO NOT CHECK OR VERIFY BETWEEN EVENTS**\n\n## Step 5: Medicine Duration Handling\n\n### Track Individual Medicine Duration:\n- **Some medicines may finish before others**\n- **Update event descriptions as medicines complete**\n- **Continue events until all medicines are finished**\n\n### Example Day-by-Day Changes:\n```\nDay 1-7: All 4 medicines in morning event\nDay 8-10: Only 3 medicines (if one finished after 7 days)\nDay 11+: Only remaining medicines\n```\n\n## Step 6: Event Description Template\n\n### Comprehensive Description Format:\n```\n[TIME SLOT] MEDICATIONS - Day [X] of [Max Days]\n\nMEDICINES TO TAKE:\n💊 [Medicine 1] - [Dosage] ([Duration remaining])\n   ⏰ [Before/After food timing]\n   \n💊 [Medicine 2] - [Dosage] ([Duration remaining])  \n   ⏰ [Before/After food timing]\n\n💊 [Medicine 3] - [Dosage] ([Duration remaining])\n   ⏰ [Before/After food timing]\n\n📋 INSTRUCTIONS:\n- Before food: Take immediately at [Time]\n- After food: Take 1 hour after meals\n- [Any special dietary advice]\n\n👨‍⚕️ Prescribed by: Dr. [Doctor Name]\n📞 Emergency: Contact doctor for side effects\n📅 Treatment Progress: Day [X] of [Total Days]\n```\n\n## Step 7: Final Response Format\n\n```\n**📋 PRESCRIPTION PROCESSED FOR:** [Patient Name]\n**📞 PATIENT CONTACT:** [Phone Number]\n**👨‍⚕️ PRESCRIBED BY:** Dr. [Doctor Name]  \n**📅 TREATMENT PERIOD:** [Start Date] to [End Date]\n**⏱️ TIMEZONE:** Indian Standard Time (IST)\n\n**💊 MEDICINE GROUPING BY TIME SLOTS:**\n\n**🌅 MORNING (8:00 AM):**\n- DOLO - 1 tablet (10 days) - Before food\n- Paracetamol - 1 capsule (10 days) - Before food\n- OG 100mg - 1 tablet (10 days) - After food (9 AM)\n- Itraconazole - 1/2 tablet (10 days) - After food (9 AM)\n\n**☀️ AFTERNOON (2:00 PM):**\n- OG 100mg - 1 tablet (10 days) - After food (3 PM)\n\n**🌙 NIGHT (10:00 PM):**\n- DOLO - 1 tablet (10 days) - Before food\n- Paracetamol - 1 capsule (10 days) - Before food  \n- OG 100mg - 1 tablet (10 days) - After food (11 PM)\n- Itraconazole - 1/2 tablet (10 days) - After food (11 PM)\n\n**📅 ALL CALENDAR EVENTS CREATED SUCCESSFULLY:**\n✅ Morning events: 10 daily events created (July 26 - August 4)\n✅ Afternoon events: 10 daily events created (July 26 - August 4)\n✅ Night events: 10 daily events created (July 26 - August 4)\n\n**📊 FINAL SUMMARY:**\n- Patient: [Name] ([Phone])\n- Total time slots: 3 (Morning, Afternoon, Night)\n- Total daily events: 3 events per day\n- Treatment duration: 10 days  \n- Total calendar events: 30 time-slot events CREATED\n- All events include patient details and contact info\n- Mass creation completed successfully\n\n**🍽️ DIETARY INSTRUCTIONS:** [Advice]\n**✅ STATUS:** All 30 time-slot events created in single execution\n```\n\n## Critical Requirements:\n\n### 1. Patient Information Inclusion:\n- **Extract and include patient name** in every event title\n- **Extract and include phone number** in every event description\n- **Add patient contact info** for easy reference during medication time\n\n### 2. Mass Event Creation:\n- **Calculate total events needed** before starting\n- **Execute ALL calendar tool calls consecutively** without interruption\n- **Do NOT check or verify between events** - complete all at once\n- **Provide final summary only after ALL events are created**\n\n### 3. Event Content:\n- **Event titles include patient name** for easy identification\n- **Event descriptions include patient contact details**\n- **Group medicines by TIME SLOT** (not individual medicines)\n- **Include complete medication instructions** in each event\n\n### 4. Single Execution Cycle:\n- **NO individual event confirmations**\n- **Execute calendar tool for ALL events in sequence**\n- **Report total success after mass creation**\n- **Verify final count matches planned count**\n\n---\n\n**PRESCRIPTION INPUT:**\nMessage type: {{ $json.message_type }}\nContent: ```{{ $json.message_text }}```\n{{ $json.message_caption ? `Caption: ${$json.message_caption.trim()}` : '' }}\n\n**CREATE TIME-SLOT BASED EVENTS THAT GROUP MEDICINES BY TIMING, NOT INDIVIDUAL MEDICINE EVENTS**\n\nif the prescription dosn't contain **Patient Phone**: Contact number\nmust ask for the user most required\nand ask for the the user MORNING, AFTERNOON, EVENING and NIGHT slot to set time this is should be taken from the user\n\n## Most Important Use the calender tool To create the event.",
+        "options": {}
+      },
+      "id": "c01aa9ce-7a8e-430d-9bd7-eab75e716376",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        576,
+        1040
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Binary data is missing.');\n}\n\nconst binaryData = item.binary.data.data;\nconst mimeType = item.binary.data.mimeType || 'audio/ogg';\n\n// Decode and re-encode base64\nconst audioBase64 = Buffer.from(binaryData, 'base64').toString('base64');\n\n// Attach to item.json\nitem.json.audioBase64 = audioBase64;\nitem.json.mimeType = mimeType;\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -256,
+        272
+      ],
+      "id": "5753be57-9de3-4b0e-9d15-471178f2754d",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -208,
+        96
+      ],
+      "id": "2c552e12-84f4-43a9-9154-f42b07117a5c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.audio.id }}"
+      },
+      "id": "36916112-31ac-4307-9644-488b33f476f6",
+      "name": "Get Audio URL1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -624,
+        272
+      ],
+      "typeVersion": 1,
+      "webhookId": "802c8591-4118-4ae3-a7a8-009251d3fc77",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "5010cb1f-7e48-4ba8-b348-f52b2fd95c75",
+      "name": "Download Audio1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -464,
+        272
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "### 2. Transcribe Audio Messages 💬\nFor audio messages or voice notes, we can use GPT4o to transcribe the message for our AI Agent.",
+        "height": 97.23360184119679,
+        "width": 356.65822784810103,
+        "color": 7
+      },
+      "id": "360de872-b53f-4800-92bd-8e07009f9938",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        144
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        { text: \"Transcribe this audio\" },\n        {\n          inlineData: {\n            mimeType: $json.mimeType || \"audio/ogg\",\n            data: $json.data \n          }\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "options": {}
+      },
+      "id": "90dbc376-9b6c-4f12-a9ec-7c5556e22941",
+      "name": "Google Gemini Audio1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -16,
+        256
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "tZzmSrjXSgme8aqI",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b3dbd25f-ca26-4f9f-91b4-453d782762ba",
+      "name": "Format Response2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        256
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "jsCode": "if (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Binary data is missing.');\n}\nconst binaryData = item.binary.data.data;\n// Set default mime type to video/mp4, but prefer the actual mimeType if present\nconst mimeType = item.binary.data.mimeType || 'video/mp4'; \n\n// Decode and re-encode base64\n// Assuming binaryData is already a Buffer or a similar byte array.\n// If it's a base64 string, you might not need the first Buffer.from() call.\n// However, if the platform provides it as a byte array, this is correct.\nconst videoBase64 = Buffer.from(binaryData).toString('base64');\n\n// Attach to item.json\nitem.json.videoBase64 = videoBase64;\nitem.json.mimeType = mimeType;\n\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -304,
+        848
+      ],
+      "id": "4c768485-33e1-4658-94c2-113d675cccad",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.document.id }}"
+      },
+      "id": "3d17ed2e-7394-466c-8900-48f05c70cd26",
+      "name": "Get Image URL1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -704,
+        1216
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "1b04c7ff-b175-4fb5-a938-7685c45e864e",
+      "name": "Download Image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -496,
+        1232
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "combatsolutionashwin@gmail.com",
+          "mode": "list",
+          "cachedResultName": "combatsolutionashwin@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        944,
+        1488
+      ],
+      "id": "b950e2b6-8481-4b5a-9422-0102b5c7a4c7",
+      "name": "Create an event in Google Calendar",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "qU0uUJKRpxOOPQlL",
+          "name": "Ashwin"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Text": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image URL": {
+      "main": [
+        [
+          {
+            "node": "Download Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video URL": {
+      "main": [
+        [
+          {
+            "node": "Download Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Explainer": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Out Message Parts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Video": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redirect Message Types": {
+      "main": [
+        [
+          {
+            "node": "Get Audio URL1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Video URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Image URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Image URL1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Message Parts": {
+      "main": [
+        [
+          {
+            "node": "Redirect Message Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Audio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio URL1": {
+      "main": [
+        [
+          {
+            "node": "Download Audio1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio1": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Audio1": {
+      "main": [
+        [
+          {
+            "node": "Format Response2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response2": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image URL1": {
+      "main": [
+        [
+          {
+            "node": "Download Image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image1": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "b427ffa4-5538-4b1f-b6db-52dd271e0763",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "IP9q6pSzLqzRIOAt",
+  "tags": []
+}

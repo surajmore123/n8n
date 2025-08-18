@@ -1,0 +1,887 @@
+{
+  "name": "medical summary",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "7ab63c28-e319-4573-aff8-d3b64aa16141",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -2496,
+        288
+      ],
+      "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{$json.candidates[0].content.parts[0].text}}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            },
+            {
+              "id": "log_id_001",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "id": "log_id_002",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}-{{ new Date().getTime() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "94aa7141-aeef-4feb-adac-76717eb2130b",
+      "name": "Get User's Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -976,
+        480
+      ],
+      "typeVersion": 3.4,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Medical Report Summary Agent Prompt\n\n## Objective\nCreate a comprehensive, standardized summary of medical reports from various formats (laboratory results, diagnostic imaging, clinical assessments, discharge summaries, or specialist consultations) while maintaining medical accuracy and clinical relevance.\n\n## Input Processing Instructions\n\n### 1. Patient Information Extraction\n- **Patient Demographics**: Name, age, gender, weight, height (if available)\n- **Contact Information**: Address, phone number (when present)\n- **Patient ID**: Medical record numbers, hospital registration numbers\n- **Report Date**: Date of examination/test and report generation date\n\n### 2. Healthcare Provider Information\n- **Primary Physician**: Name, credentials, department/specialty\n- **Reporting Physician/Technician**: Name, credentials, specialty\n- **Medical Facility**: Hospital/clinic name, department, address, contact information\n- **Report Reference Numbers**: Case numbers, accession numbers, study IDs\n\n### 3. Clinical Context\n- **Reason for Examination**: Clinical indication, referring physician's concerns\n- **Clinical History**: Relevant medical history, previous conditions\n- **Current Symptoms**: Presenting complaints or clinical signs\n- **Previous Studies**: Related prior examinations or tests for comparison\n\n### 4. Examination/Test Details\nFor each medical report type, extract:\n\n#### Laboratory Reports:\n- **Test Panel**: Complete blood count, metabolic panel, specific markers\n- **Sample Information**: Collection date/time, specimen type\n- **Results**: Values with reference ranges and units\n- **Critical Values**: Abnormal findings requiring immediate attention\n\n#### Diagnostic Imaging:\n- **Study Type**: X-ray, CT, MRI, ultrasound, nuclear medicine\n- **Body Region**: Anatomical area examined\n- **Contrast Information**: Type and administration method (if used)\n- **Technical Parameters**: Imaging protocols, sequences\n\n#### Clinical Assessments:\n- **Physical Examination**: Vital signs, system-specific findings\n- **Mental Status**: Cognitive assessment, psychological evaluation\n- **Functional Assessment**: Mobility, activities of daily living\n\n### 5. Findings and Results\n- **Normal Findings**: Systems or parameters within normal limits\n- **Abnormal Findings**: Specific abnormalities with measurements/descriptions\n- **Comparison Studies**: Changes from previous examinations\n- **Incidental Findings**: Unexpected discoveries unrelated to primary indication\n\n### 6. Clinical Interpretation\n- **Primary Diagnosis**: Main clinical findings or confirmed diagnoses\n- **Differential Diagnosis**: Alternative possible diagnoses\n- **Clinical Significance**: Impact on patient care and treatment\n- **Recommendations**: Follow-up studies, referrals, treatment suggestions\n\n## Output Format Requirements\n\n### Summary Structure:\n```\n**MEDICAL REPORT SUMMARY**\n\n**Patient Information:**\n- Name: [Patient Name]\n- Age/Gender: [Age]/[Gender]\n- MRN: [Medical Record Number]\n- Report Date: [Date of Report]\n- Facility: [Medical Facility Name]\n\n**Report Details:**\n- Type: [Laboratory/Imaging/Clinical Assessment]\n- Ordering Physician: Dr. [Physician Name]\n- Reporting Physician: Dr. [Physician Name], [Specialty]\n- Clinical Indication: [Reason for examination]\n\n**Clinical History:**\n- [Relevant medical history and symptoms]\n- [Previous related studies]\n\n**Examination/Test Performed:**\n- Study/Test: [Specific examination or test name]\n- Date/Time: [When performed]\n- Technical Details: [Relevant technical information]\n\n**Key Findings:**\n**Normal Findings:**\n- [List of normal parameters/systems]\n\n**Abnormal Findings:**\n- [Specific abnormalities with measurements]\n- [Critical values flagged]\n- [Comparison with previous studies]\n\n**Clinical Interpretation:**\n- Primary Findings: [Main diagnostic conclusions]\n- Clinical Significance: [Impact on patient care]\n- Differential Considerations: [Alternative diagnoses if applicable]\n\n**Recommendations:**\n- [Follow-up studies needed]\n- [Specialist referrals]\n- [Treatment considerations]\n- [Timing for next evaluation]\n\n**Report Status:** [Final/Preliminary/Amended]\n```\n\n## Processing Guidelines\n\n### 1. Medical Accuracy Requirements\n- Preserve exact medical terminology and measurements\n- Maintain original units and reference ranges\n- Double-check critical values and abnormal findings\n- Flag any inconsistencies or unclear information\n\n### 2. Clinical Relevance\n- Prioritize clinically significant findings\n- Distinguish between major and minor abnormalities\n- Contextualize findings within patient's clinical history\n- Highlight urgent or critical results requiring immediate attention\n\n### 3. Format Standardization\n- Convert complex medical data into organized, readable format\n- Standardize medical abbreviations (expand when necessary)\n- Organize findings by clinical significance\n- Maintain logical flow from examination to interpretation\n\n### 4. Completeness Verification\n- Ensure all test results are included\n- Check that reference ranges are provided\n- Verify that clinical correlation is addressed\n- Confirm recommendations are specific and actionable\n\n## Special Handling Instructions\n\n### For Laboratory Reports:\n- Group related tests logically (e.g., liver function, kidney function)\n- Highlight critical values and panic values\n- Include reference ranges for all numerical results\n- Note any interfering factors or collection issues\n\n### For Imaging Studies:\n- Describe anatomical structures systematically\n- Quantify abnormalities when measurements provided\n- Compare with prior studies when available\n- Include technical limitations that may affect interpretation\n\n### For Clinical Assessments:\n- Organize by body systems or functional domains\n- Include scoring systems or standardized assessments used\n- Note any limitations in examination (patient cooperation, etc.)\n- Preserve timeline of symptom development\n\n### For Discharge Summaries:\n- Summarize hospital course chronologically\n- Include admission and discharge diagnoses\n- List procedures performed during stay\n- Outline discharge medications and follow-up plans\n\n## Error Handling and Quality Flags\n- If values are unclear: [VALUE UNCLEAR - REQUIRES VERIFICATION]\n- If critical information missing: [MISSING: specify information needed]\n- If findings require urgent attention: [CRITICAL FINDING - IMMEDIATE ATTENTION REQUIRED]\n- If report is preliminary: [PRELIMINARY REPORT - FINAL INTERPRETATION PENDING]\n\n## Output Quality Standards\n- Professional medical language appropriate for healthcare providers\n- Clear distinction between objective findings and clinical interpretation\n- Comprehensive coverage while maintaining readability\n- Logical organization that supports clinical decision-making\n- Preservation of all medically significant information\n- Appropriate flagging of urgent or critical findings\n\n## Confidentiality and Compliance\n- Maintain HIPAA compliance in all summaries\n- Preserve only medically necessary patient identifiers\n- Flag any inconsistencies that might affect patient safety\n- Ensure all critical communications are clearly highlighted\n\nThis prompt ensures consistent, accurate, and clinically relevant summarization of medical reports while maintaining professional medical standards and supporting optimal patient care.",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        }
+      },
+      "id": "fa33fd92-9da5-46c4-80c9-75745d667f14",
+      "name": "Image Explainer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -1600,
+        384
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].image.id }}"
+      },
+      "id": "adeef029-4388-493c-8e95-f282177c9c24",
+      "name": "get image url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2048,
+        320
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "bad9cf1f-8096-4ab3-80e4-90ba6b7ee0ad",
+      "name": "download image",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1824,
+        320
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_text || $json.messages[0].text.body || $('WhatsApp Trigger').item.json.messages[0].text.body}}",
+        "options": {
+          "systemMessage": "you are a medical report summary agent\nyour work is to summarise the report in simple language to understand to patient"
+        }
+      },
+      "id": "7394451f-49db-4df5-82ae-2a7886962820",
+      "name": "summeries report",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -752,
+        480
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.ai_response ||$json.output }}",
+        "additionalFields": {}
+      },
+      "id": "ac4e9d07-ff1a-4386-88d0-30d952c0e809",
+      "name": "output",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        112,
+        96
+      ],
+      "typeVersion": 1,
+      "webhookId": "77a0150a-8819-49b2-88c7-ab75560f62e7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].document.id}}"
+      },
+      "id": "bca12eaa-5336-46ca-b076-8b8809c8f71d",
+      "name": "get pdf url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2048,
+        576
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "830b4008-11c2-4816-bd50-96cf269b6e60",
+      "name": "download pdf",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1824,
+        576
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1520,
+        576
+      ],
+      "id": "036ba681-7602-4c9d-ac69-b6ade2d47ac4",
+      "name": "extraction pdf"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "9c486752-b08e-440c-9ac3-7c091eb3a27c",
+      "name": "image chat model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -352,
+        208
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=whatsapp-tutorial-{{ $json.from }}"
+      },
+      "id": "5148826f-e724-45b8-9447-337f74fb76d6",
+      "name": "memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -208,
+        256
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log_session_id",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{$('Get User\\'s Message').item.json.session_id}}"
+            },
+            {
+              "id": "log_timestamp",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $('Get User\\'s Message').item.json.timestamp}}"
+            },
+            {
+              "id": "log_user_phone",
+              "name": "user_phone",
+              "type": "string",
+              "value": "={{ $('Get User\\'s Message').item.json.from}}"
+            },
+            {
+              "id": "log_message_type",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('Get User\\'s Message').item.json.message_type}}"
+            },
+            {
+              "id": "log_input_text",
+              "name": "input_text",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text?.body || 'Non-text message' }}"
+            },
+            {
+              "id": "log_ai_response",
+              "name": "ai_response",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "log_processing_status",
+              "name": "processing_status",
+              "type": "string",
+              "value": "SUCCESS"
+            },
+            {
+              "id": "log_response_length",
+              "name": "response_length",
+              "type": "number",
+              "value": "={{ String($json.output).length }}"
+            },
+            {
+              "id": "log_workflow_execution_id",
+              "name": "workflow_execution_id",
+              "type": "string",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3c512c85-969b-4409-b34a-040e86a1db24",
+      "name": "Prepare Success Log",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -256,
+        464
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-goog-api-key",
+              "value": "AIzaSyCdPU5amX4bKyeNR0nCzj1v5aC2DA6N3eQ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\":{{ JSON.stringify($json.text) }}\n\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -1200,
+        480
+      ],
+      "id": "f0fa2799-9cd0-49d3-83f7-ff65dc1668fa",
+      "name": "HTTP Request1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].document.id }}"
+      },
+      "id": "0b6ef827-3ee4-4b5b-b832-50c6de289fde",
+      "name": "get image url1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2048,
+        768
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "db08993d-f95c-485f-a683-2ccbc69b9eaa",
+      "name": "download image1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1824,
+        768
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f935d3b2-58f5-4dce-9199-cb33415dbf72",
+                    "leftValue": "={{ $json.messages[0].image.mime_type == \"image/jpeg\"}}",
+                    "rightValue": "\"image\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image doc"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8078c708-477b-47c1-934a-edd27a9e7381",
+                    "leftValue": "={{ $json.messages[0].type==\"text\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "008e5dd9-1d1d-42e9-a3ae-8adf342033b4",
+      "name": "switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -2272,
+        256
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=When the user message indicates they want to see or know about their medical report, call the connected 'search' tool to retrieve the report data from the 'medical report' collection in MongoDB. Ensure the query includes a filter for the user's phone number (user_phone) using the value from {{ $json.messages[0].from }} to only return the current user's report.\n\nExamples of user messages:\n\n\"I want to know about my report\"\n\n\"show my report\"\n\n\"report data\"\n\n\"what's in my report\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -320,
+        -16
+      ],
+      "id": "da23e85a-f195-44c9-b4bb-c47bfa65f628",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "medicalreport",
+          "mode": "list",
+          "cachedResultName": "medicalreport"
+        },
+        "options": {
+          "pineconeNamespace": "medical report"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1.3,
+      "position": [
+        -2480,
+        1200
+      ],
+      "id": "05370a67-04b8-4f66-ae10-d79235a1b8d0",
+      "name": "Pinecone Vector Store",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-embedding-001"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -2496,
+        1424
+      ],
+      "id": "e85699ff-abcf-42ad-97f2-9fb6412c35c6",
+      "name": "Embeddings Google Gemini",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -2368,
+        1424
+      ],
+      "id": "3df2228b-3d38-4098-bf5a-3ef82b3f2798",
+      "name": "Default Data Loader",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -2272,
+        1632
+      ],
+      "id": "deca4c6c-7d52-4ecd-91b0-1754d6c6cfe9",
+      "name": "Recursive Character Text Splitter",
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message": {
+      "main": [
+        [
+          {
+            "node": "summeries report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Explainer": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get image url": {
+      "main": [
+        [
+          {
+            "node": "download image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download image": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summeries report": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get pdf url": {
+      "main": [
+        [
+          {
+            "node": "download pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download pdf": {
+      "main": [
+        [
+          {
+            "node": "extraction pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extraction pdf": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image chat model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "summeries report",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "summeries report",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log": {
+      "main": [
+        [
+          {
+            "node": "output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get image url1": {
+      "main": [
+        [
+          {
+            "node": "download image1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download image1": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch": {
+      "main": [
+        [
+          {
+            "node": "get image url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get pdf url",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "get image url1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Google Gemini": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3e68728f-458e-471e-b44c-70751ea2b52c",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "ladEXAJFviJvio5r",
+  "tags": []
+}

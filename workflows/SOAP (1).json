@@ -1,0 +1,1002 @@
+{
+  "name": "SOAP",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -560,
+        576
+      ],
+      "id": "b0bcf8d7-fa82-437a-9515-71bd6eb38514",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        { text: \"Transcribe this audio\" },\n        {\n          inlineData: {\n            mimeType: $json.mimeType || \"audio/ogg\",\n            data: $json.data \n          }\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "options": {}
+      },
+      "id": "1364feb4-e8e3-4f5d-8226-817161ebf153",
+      "name": "Google Gemini Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -320,
+        576
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "id": "71bd7e85-ba3a-4cba-b60c-464bde3aa034",
+      "name": "get audio url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -320,
+        304
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].audio.id }}"
+      },
+      "id": "2807b87a-006b-47b2-8d87-6bec55f64435",
+      "name": "get recording url",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -320,
+        128
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "d5c8cbda-c704-4a4a-a2f2-905f2d3a2dbd",
+      "name": "download url",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -96,
+        304
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "fa2b0acf-562d-46b1-a921-ac8c50933ca1",
+      "name": "Format Response",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -80,
+        576
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.text }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=# Simple Language Identification Prompt  Identify the language of the given text. Respond with only the language name, nothing else.  Examples: - Input: \"Hello, how are you today?\" - Output: English  - Input: \"Bonjour, comment allez-vous?\" - Output: French  - Input: \"Hola, ¿cómo estás?\" - Output: Spanish"
+            }
+          ]
+        },
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        144,
+        352
+      ],
+      "id": "1a98da60-980a-461f-bb53-c8037db0a910",
+      "name": "language detector"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('Format Response').item.json.text }}",
+        "options": {
+          "systemMessage": "=# Document-Based SOAP Generator AI Agent\nNote - Make sure to generate SOAP within 4090 characters\n\n## Role Definition\nYou are **SOAPScribe AI**, a specialized medical documentation assistant that creates comprehensive SOAP notes.\n\n## IMPORTANT: Include Booking ID\nAt the end of your SOAP note, add:\n---\nBOOKING_ID: [retrieve from memory key 'selectedBookingId']\n\n## Core Function\n**Intelligent SOAP Generation**: Analyze provided audio file of doctor and patient conversation and automatically generate complete SOAP notes.\n\nAs per the detected language translate your content into that specific language\ndetected language: {{ $json.text }}\n\nNote when you are using date for SOAP Use current date and time: {{ $now.format('yyyy-MM-dd') }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        432,
+        336
+      ],
+      "id": "a0d76747-01dd-41d7-91f6-97a23e0a5ca1",
+      "name": "SOAP Generator"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        304
+      ],
+      "id": "ce338cfa-5e99-44ba-bc36-5eda2725ee46",
+      "name": "WhatsApp Send",
+      "webhookId": "9ff783c3-5cda-4094-a1ff-d0509c394418",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/ogg; codecs=opus\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "0ec878b1-bcbb-41c9-ad2d-91073b634916"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recording"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "6b39c4d2-5eb7-4e35-b57c-e032cf7a7c8b",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/mpeg\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9be3264c-c003-420e-b39d-25db50bcd85a",
+                    "leftValue": "={{ $json.messages[0].type==\"text\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -768,
+        288
+      ],
+      "id": "361f1e15-6657-43cd-992c-39b9d1113ae6",
+      "name": "Check"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Send').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Send').item.json.contacts[0].wa_id }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2256,
+        256
+      ],
+      "id": "7adfc20e-0922-417e-bdf3-10b368636b1d",
+      "name": "Receive",
+      "webhookId": "f5d98c35-b503-4e19-9cbb-4eb6b5a60606",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        2736
+      ],
+      "id": "717366cd-a97b-436b-b663-ee8481eb73c7",
+      "name": "gemini",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Send').item.json.contacts[0].wa_id }}12",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        992,
+        880
+      ],
+      "id": "30cc17f1-177f-4a32-a97a-2192cb5549c3",
+      "name": "Memory"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5570004b-df3a-4c98-b574-4ba946749928",
+              "name": "soapText",
+              "value": "={{ $json.output }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        336
+      ],
+      "id": "41541524-762a-42c2-a61f-87c43e922c94",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1680,
+        368
+      ],
+      "id": "b7d02933-c790-416c-b291-927676260161",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $('Edit Fields2').item.json.soapText }}",
+        "name": "Soap",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {
+          "convertToGoogleDocument": true
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        352
+      ],
+      "id": "0566a3f1-4f1a-445b-802f-b295b32a509e",
+      "name": "Create file from text",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/files",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "data",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1888,
+        624
+      ],
+      "id": "7bb80f5b-baaa-4751-890f-09721489c606",
+      "name": "save pdf1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{$json.bookingid}}/soap-file",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"file\": {\n    \"fieldname\": \"{{ $('save pdf1').item.json.files[0].fieldname }}\",\n    \"fileName\": \"{{ $('save pdf1').item.json.files[0].fileName }}\",\n    \"fileUrl\": \"{{ $('save pdf1').item.json.files[0].fileUrl }}\",\n    \"encoding\": \"{{ $('save pdf1').item.json.files[0].encoding }}\",\n    \"mimetype\": \"{{ $('save pdf1').item.json.files[0].mimetype }}\",\n    \"size\": {{ $('save pdf1').item.json.files[0].size }}\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2320,
+        624
+      ],
+      "id": "f573e7d7-b392-484e-88fd-955a1f0c469c",
+      "name": "post soap"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=you are a SOAP Generating agent  \nwhen you got any message related to generate soap, or please generate an soap \n\ncall find appointment tool and pass +{{ $json.messages[0].from }}\n(Most Important No Memory Assumptions) always call tool to fetch appointments\n\nDisplay available appointments in this format:\n\n1 - startDate: 2025-09-20, startTime: 14:00\n2 - startDate: 2025-09-20, startTime: 15:30  \n3 - startDate: 2025-09-23, startTime: 13:20\n\nEach appointment has a hidden patientBookingId (store in memory, do not show).\n\nCRITICAL STORAGE INSTRUCTIONS:\nWhen patient selects an appointment (e.g., \"I choose option 2\" or \"2\"):\n1. Extract the ACTUAL patientBookingId number from the appointment data\n2. Store the NUMERIC booking ID (like 47, 48, 49) with key: selectedBookingId\n3. Do NOT store placeholder text - store the actual number\n4. Respond: \"Perfect! I've stored booking ID [ACTUAL_NUMBER] for your appointment. You can now send an audio file.\"\n\nExample: If patient says \"2\" and appointment 2 has patientBookingId: 48:\n- Store: 48 (not \"2\", not \"patientBookingId_for_appointment_2\")\n- Use: $memory.set('selectedBookingId', '48')\n\nif there are no appointments then say: please book an appointment"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "c5703941-dd4b-429a-a2b9-c4d6276a9ed2",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "722383954288560",
+        "recipientPhoneNumber": "={{ $('WhatsApp Send').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        768,
+        0
+      ],
+      "id": "d7cf6398-1f35-411a-823e-5ee8a4ce1356",
+      "name": "Send message",
+      "webhookId": "32b64a17-9ae2-424b-b833-359a8f09a329",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings/by-phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phoneNo",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass patient's phone no`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        640,
+        624
+      ],
+      "id": "0e5db5b7-55b6-43bc-a846-6ede65573dcd",
+      "name": "find appointment"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        400,
+        608
+      ],
+      "id": "8e56845e-98dc-4ac5-a619-72bc83921101",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e410685b-560f-4834-8969-1c8558095931",
+              "name": "bookingid",
+              "value": "={{ $('retrive booking id').item.json.output.match(/\"bookingId\":\\s*\"(\\d+)\"/)[1] }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2096,
+        624
+      ],
+      "id": "655a3693-b655-486f-b95a-3930b9f1973e",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Retrieve the booking ID stored with key 'selectedBookingId' from memory and return ONLY the JSON object without any markdown formatting or code blocks.\n\nReturn format (no other text):\n{\"bookingId\": \"[actual_booking_id_number]\"}\n\nDo not use placeholders, return the actual stored booking ID number.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1008,
+        336
+      ],
+      "id": "bbedd3bb-99f7-4c5d-916a-d75983220a1c",
+      "name": "retrive booking id"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        48
+      ],
+      "id": "81600eb6-37cd-4997-9808-9980ec8e2d72",
+      "name": "Wait6",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Send').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Send').item.json.contacts[0].wa_id }}",
+        "textBody": "⏳ We are processing your request, please wait a moment...",
+        "additionalFields": {}
+      },
+      "id": "d20d6cfd-0441-4b75-abb3-5544440c29c9",
+      "name": "Send Wait Message1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        0,
+        -176
+      ],
+      "typeVersion": 1,
+      "webhookId": "b7b2a928-229b-4b52-b35b-f3ad0e446c6f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -752,
+        672
+      ],
+      "id": "331a80bb-3548-4709-9154-b08446dc03b1",
+      "name": "Wait",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Audio": {
+      "main": [
+        [
+          {
+            "node": "Format Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get audio url": {
+      "main": [
+        [
+          {
+            "node": "download url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get recording url": {
+      "main": [
+        [
+          {
+            "node": "download url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download url": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response": {
+      "main": [
+        [
+          {
+            "node": "language detector",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "language detector": {
+      "main": [
+        [
+          {
+            "node": "SOAP Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SOAP Generator": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Send": {
+      "main": [
+        [
+          {
+            "node": "Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check": {
+      "main": [
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "SOAP Generator",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "retrive booking id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "save pdf1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Receive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create file from text": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save pdf1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "find appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "language detector",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "SOAP Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "post soap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrive booking id": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get recording url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get audio url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d3ee6580-a9df-4d8f-ad82-ceaf29241e3a",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "NSRc2vNUR4Z0Bf81",
+  "tags": []
+}

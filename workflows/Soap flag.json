@@ -1,0 +1,33 @@
+{
+  "name": "Soap flag",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "soap_flag",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6aaf3d13-89a4-43af-8bd1-fa376c93331d",
+      "name": "Webhook",
+      "webhookId": "95f17a62-c24a-40b9-b1f0-963b6b117fd6"
+    }
+  ],
+  "pinData": {},
+  "connections": {},
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "79213743-aa66-4244-ab63-fac4cf727c6c",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "3LDieWMduerYjanQ",
+  "tags": []
+}

@@ -1,0 +1,828 @@
+{
+  "name": "Referal management",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "form",
+        "formDescription": "Referal Management form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Patient Name",
+              "placeholder": "patient name"
+            },
+            {
+              "fieldLabel": "Patient Phone",
+              "placeholder": "Patient Phone"
+            },
+            {
+              "fieldLabel": "Patient Email",
+              "placeholder": "Patient Email"
+            },
+            {
+              "fieldLabel": "Date of Birth",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Reason for Referral",
+              "placeholder": "Reason for Referral"
+            },
+            {
+              "fieldLabel": "Clinical Notes",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Doctor Name",
+              "placeholder": "Doctor Name"
+            },
+            {
+              "fieldLabel": "Doctor Phone",
+              "placeholder": "Doctor Phone"
+            },
+            {
+              "fieldLabel": "Doctor Email",
+              "placeholder": "Doctor Email"
+            },
+            {
+              "fieldLabel": "Clinic/Hospital",
+              "placeholder": "Clinic/Hospital"
+            },
+            {
+              "fieldLabel": "Address",
+              "placeholder": "Address"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -336,
+        -192
+      ],
+      "id": "d7175d32-ea6d-4449-911f-55df9504fea9",
+      "name": "On form submission",
+      "webhookId": "54fba984-30e1-45da-b382-17d35cb9cc38",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1SVuBVjvFleatYlLIayH8qDX6j_V8rQqjh2xUsCo5NcA",
+          "mode": "list",
+          "cachedResultName": "Referal Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1SVuBVjvFleatYlLIayH8qDX6j_V8rQqjh2xUsCo5NcA/edit?usp=drivesdk"
+        },
+        "name": "Referral Letter",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        320,
+        112
+      ],
+      "id": "419fa66a-364b-4625-a621-24ef67afa300",
+      "name": "Template",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_NAME]",
+              "replaceText": "={{ $('On form submission').item.json['Patient Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_PHONE]",
+              "replaceText": "={{ $('On form submission').item.json['Patient Phone'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_EMAIL]",
+              "replaceText": "={{ $('On form submission').item.json['Patient Email'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[DATE_OF_BIRTH]",
+              "replaceText": "={{ $('On form submission').item.json['Date of Birth'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": " [DOCTOR_NAME]",
+              "replaceText": "={{ $('On form submission').item.json['Doctor Name'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[CLINIC_HOSPITAL]",
+              "replaceText": "={{ $('On form submission').item.json['Clinic/Hospital'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[ADDRESS]",
+              "replaceText": "={{ $('On form submission').item.json.Address }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[REASON_FOR_REFERRAL]",
+              "replaceText": "={{ $('On form submission').item.json['Reason for Referral'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[CLINICAL_NOTES]",
+              "replaceText": "={{ $('Edit Fields').item.json['Clinical Notes'] }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[DATE]",
+              "replaceText": "={{ $now.format('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        528,
+        0
+      ],
+      "id": "9ec83e88-fa40-4b29-ab82-9e891fcba00b",
+      "name": "Update Template",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "oJAlm2O4Nt7C6TcB",
+          "name": "Google Docs account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        752,
+        -80
+      ],
+      "id": "64fbb04f-fce0-411b-8e4c-41d2fb3aa86e",
+      "name": "Download Referral",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('On form submission').item.json['Doctor Email'] }}",
+        "subject": "=Referral Letter for {{ $('On form submission').item.json['Patient Name'] }}",
+        "emailType": "text",
+        "message": "=Hello Dr.{{ $('On form submission').item.json['Doctor Name'] }} i have shared below patients info for referral \"Please find attached the referral letter.\"",
+        "options": {
+          "appendAttribution": true,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        976,
+        32
+      ],
+      "id": "a5ea5840-ece2-4dec-94b4-313caa1f1a0f",
+      "name": "Send a message to doctor",
+      "webhookId": "495bbf67-d73f-4387-950b-3009839eeb46",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=722383954288560",
+        "recipientPhoneNumber": "=91{{ $('On form submission').item.json['Patient Phone'] }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        976,
+        -208
+      ],
+      "id": "c8896a6a-f2d2-4b09-9136-beabb43c00e6",
+      "name": "Send message to patient",
+      "webhookId": "24a0091e-065b-41c7-a04f-391d212bd4a7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Clinical_Notes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "dbb9758a-b584-403b-80a3-e79b2ed69e0d",
+      "name": "Extract from File",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0805757-2dbf-4856-bfc8-dbd01b904bff",
+              "name": "Clinical Notes",
+              "value": "={{ $json.text.match(/\\*\\*Subjective:\\*\\*([\\s\\S]*?)\\*\\*Past Medical History/)[1].trim() }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        0
+      ],
+      "id": "02b25fe0-46bd-47d4-a519-64fd5ba4a0e7",
+      "name": "Edit Fields",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "formTitle": "form",
+        "formDescription": "Referal Management form",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Patient Name",
+              "placeholder": "patient name"
+            },
+            {
+              "fieldLabel": "Patient Phone",
+              "placeholder": "Patient Phone"
+            },
+            {
+              "fieldLabel": "Patient Email",
+              "placeholder": "Patient Email"
+            },
+            {
+              "fieldLabel": "Date of Birth",
+              "fieldType": "date"
+            },
+            {
+              "fieldLabel": "Reason for Referral",
+              "placeholder": "Reason for Referral"
+            },
+            {
+              "fieldLabel": "Clinical Notes",
+              "fieldType": "file"
+            },
+            {
+              "fieldLabel": "Doctor Name",
+              "placeholder": "Doctor Name"
+            },
+            {
+              "fieldLabel": "Doctor Phone",
+              "placeholder": "Doctor Phone"
+            },
+            {
+              "fieldLabel": "Doctor Email",
+              "placeholder": "Doctor Email"
+            },
+            {
+              "fieldLabel": "Clinic/Hospital",
+              "placeholder": "Clinic/Hospital"
+            },
+            {
+              "fieldLabel": "Address",
+              "placeholder": "Address"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        1808,
+        576
+      ],
+      "id": "6711aff0-174a-4884-8dd3-b9de8e1d5ba5",
+      "name": "On form submission1",
+      "webhookId": "e299ea6f-6d95-47cf-981f-5122a232a3f7",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "copy",
+        "fileId": {
+          "__rl": true,
+          "value": "1SVuBVjvFleatYlLIayH8qDX6j_V8rQqjh2xUsCo5NcA",
+          "mode": "list",
+          "cachedResultName": "Referal Template",
+          "cachedResultUrl": "https://docs.google.com/document/d/1SVuBVjvFleatYlLIayH8qDX6j_V8rQqjh2xUsCo5NcA/edit?usp=drivesdk"
+        },
+        "name": "Referral Letter",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -480,
+        720
+      ],
+      "id": "aed674ca-c625-48b9-a592-3e5f3b4ea1a6",
+      "name": "Template1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_NAME]",
+              "replaceText": "={{ $('Webhook').item.json.body.patientName }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_PHONE]",
+              "replaceText": "={{ $('Webhook').item.json.body.patientPhoneNo }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[PATIENT_EMAIL]",
+              "replaceText": "={{ $('Webhook').item.json.body.patientEmail }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[AGE]",
+              "replaceText": "={{ $('Webhook').item.json.body.patientAge.toString() }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": " [DOCTOR_NAME]",
+              "replaceText": "={{ $('Webhook').item.json.body.doctorName }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[CLINIC_HOSPITAL]",
+              "replaceText": "={{ $('Webhook').item.json.body.clinicName }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[ADDRESS]",
+              "replaceText": "={{ $('Webhook').item.json.body.clinicAddress }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[REASON_FOR_REFERRAL]",
+              "replaceText": "={{ $('Webhook').item.json.body.referalReason }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[CLINICAL_NOTES]",
+              "replaceText": "={{ $('Webhook').item.json.body.clinicNote }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[DATE]",
+              "replaceText": "={{ $now.format('yyyy-MM-dd') }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[REFERRING_DOCTOR_NAME]",
+              "replaceText": "={{ $('Webhook').item.json.body.currentDoctor }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[REFERRING_DOCTOR_PHONE]",
+              "replaceText": "={{ $('Webhook').item.json.body.currentDoctorPhoneNo }}"
+            },
+            {
+              "action": "replaceAll",
+              "text": "[REFERRING_DOCTOR_EMAIL]",
+              "replaceText": "={{ $('Webhook').item.json.body.currentDoctorEmail }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        -272,
+        720
+      ],
+      "id": "ece12eb8-5e6a-4b4c-9d0d-0b13e345802f",
+      "name": "Update Template1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "oJAlm2O4Nt7C6TcB",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.documentId }}",
+          "mode": "id"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "application/pdf"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -32,
+        720
+      ],
+      "id": "a3ea0ecf-06eb-448a-97f1-e8de2db48531",
+      "name": "Download Referral1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "90LjVfk1D2W0TIX0",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Webhook').item.json.body.doctorEmail }}",
+        "subject": "=Referral Letter for {{ $('Webhook').item.json.body.patientName }}",
+        "emailType": "text",
+        "message": "=Hello Dr. {{ $('Webhook').item.json.body.doctorName }} i have shared below patients info for referral \"Please find attached the referral letter.\"",
+        "options": {
+          "appendAttribution": false,
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        320,
+        880
+      ],
+      "id": "3cb5c4ed-5b0c-4bc3-8c35-110c16d05bc6",
+      "name": "Send a message to doctor1",
+      "webhookId": "495bbf67-d73f-4387-950b-3009839eeb46",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "=722383954288560",
+        "recipientPhoneNumber": "={{ $('Webhook').item.json.body.patientPhoneNo }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        320,
+        592
+      ],
+      "id": "2dbb4017-16fe-4bcf-91d9-5165f3dda70b",
+      "name": "Send message to patient1",
+      "webhookId": "24a0091e-065b-41c7-a04f-391d212bd4a7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Clinical_Notes",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -1008,
+        1088
+      ],
+      "id": "cfb548e6-48e8-4cff-8dcb-e164c22dc308",
+      "name": "Extract from File1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0805757-2dbf-4856-bfc8-dbd01b904bff",
+              "name": "Clinical Notes",
+              "value": "={{ $json.text.match(/\\*\\*Subjective:\\*\\*([\\s\\S]*?)\\*\\*Past Medical History/)[1].trim() }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -800,
+        1088
+      ],
+      "id": "cba94e2c-7b9f-4fba-9084-695480067538",
+      "name": "Edit Fields1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "referral_data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -688,
+        720
+      ],
+      "id": "426ff2f4-64ca-4a14-8701-8cdc1b3fc8fc",
+      "name": "Webhook",
+      "webhookId": "b161e02e-cd1e-4849-a13e-a1862b7af10e"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "untyrannic-ellison-blinkingly.ngrok-free.app",
+            "user-agent": "axios/1.11.0",
+            "content-length": "612",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "2600:3c00::2000:a8ff:feed:21a8",
+            "x-forwarded-host": "untyrannic-ellison-blinkingly.ngrok-free.app",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "id": 6,
+            "referalReason": "several headache",
+            "clinicNote": "suffering from last 6 days",
+            "doctorName": "dr pravin patil",
+            "doctorPhone": "+919988554477",
+            "doctorEmail": "surajmorecombat@gmail.com",
+            "clinicName": "sun shine clinic",
+            "clinicAddress": "nashik canada corner nashik",
+            "createdAt": "2025-09-16T04:41:09.860Z",
+            "updatedAt": "2025-09-16T04:41:09.860Z",
+            "isDeleted": false,
+            "patientBookingId": 29,
+            "currentDoctor": "lokesh lanke",
+            "currentDoctorPhoneNo": "919966778899",
+            "currentDoctorEmail": "lokesh@gmail.com",
+            "patientName": "Suraj Nore",
+            "patientPhoneNo": "+919067335884",
+            "patientEmail": "surajmorecombat@gmail.com",
+            "patientAge": 22
+          },
+          "webhookUrl": "https://untyrannic-ellison-blinkingly.ngrok-free.app/webhook/referral_data",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Template": {
+      "main": [
+        [
+          {
+            "node": "Update Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Template": {
+      "main": [
+        [
+          {
+            "node": "Download Referral",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Referral": {
+      "main": [
+        [
+          {
+            "node": "Send a message to doctor",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message to patient",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send message to patient": {
+      "main": [
+        []
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission1": {
+      "main": [
+        []
+      ]
+    },
+    "Template1": {
+      "main": [
+        [
+          {
+            "node": "Update Template1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Template1": {
+      "main": [
+        [
+          {
+            "node": "Download Referral1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Referral1": {
+      "main": [
+        [
+          {
+            "node": "Send a message to doctor1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message to patient1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        []
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        []
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Template1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6a8d521b-bd18-4b0e-beaa-d3494f24cd1b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "hYoNq5TkKIZ7uCxP",
+  "tags": []
+}

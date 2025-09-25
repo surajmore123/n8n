@@ -1,0 +1,609 @@
+{
+  "name": "patient intake",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "228d93f6-ffef-4a9d-82f0-58d1c0a837ff",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -1200,
+        528
+      ],
+      "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.audio.id }}"
+      },
+      "id": "c26dcf6d-2e12-4787-bc03-26b9d8b2552a",
+      "name": "Get Audio URL",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -400,
+        64
+      ],
+      "typeVersion": 1,
+      "webhookId": "22f7ac57-decf-46f7-af7d-eebb6b4782f0",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "ec760559-28a6-4c2c-bf34-4497f9bcf85b",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -240,
+        64
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('Split Out Message Parts').item.json.type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{ $json.text.body || $json.text || '' }}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
+            },
+            {
+              "id": "da4b602a-28ca-4b0d-a747-c3d3698c3731",
+              "name": "message_caption",
+              "type": "string",
+              "value": "={{ $('Redirect Message Types').item.json.video && $('Redirect Message Types').item.json.video.caption || '' }}\n{{ $('Redirect Message Types').item.json.image && $('Redirect Message Types').item.json.image.caption || ''}}\n{{ $('Redirect Message Types').item.json.audio && $('Redirect Message Types').item.json.audio.caption || ''}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c5409883-6686-4914-ab3a-c5c40db2ad9a",
+      "name": "Get User's Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        672,
+        608
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "id": "ad004599-a8a2-4a5b-9cd7-58bf4154340a",
+      "name": "Split Out Message Parts",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -960,
+        528
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'audio' && Boolean($json.audio) }}",
+                    "rightValue": "audio"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Audio Message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Text Message"
+        }
+      },
+      "id": "cd1c84a0-f415-4447-9338-891269160d88",
+      "name": "Redirect Message Types",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -688,
+        608
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "id": "75824f2a-2366-4ae6-a0da-4b49024ef4bf",
+      "name": "Get Text",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -320,
+        592
+      ],
+      "webhookId": "99b49c83-d956-46d2-b8d3-d65622121ad9",
+      "typeVersion": 1.1
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "3b20ce85-f6af-44c6-aebc-b7af7efbae4d",
+      "name": "Respond to User",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1328,
+        624
+      ],
+      "typeVersion": 1,
+      "webhookId": "7488997c-735f-4bfb-b36c-3b156f0bdab6",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        { text: \"Transcribe this audio\" },\n        {\n          inlineData: {\n            mimeType: $json.mimeType || \"audio/ogg\",\n            data: $json.data \n          }\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "options": {}
+      },
+      "id": "54a3764a-7ddf-428a-bd5a-8229e5ce0397",
+      "name": "Google Gemini Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        208,
+        48
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "259ecaf4-435a-4d39-9bd6-8f297db43d9b",
+      "name": "Format Response1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        448,
+        48
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_text }}(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=Role & Purpose\n\nYou are an AI Patient Intake Assistant operating on WhatsApp for a medical clinic.\nYour role is to collect, validate, and prepare patient intake data for direct JSON payload submission into the n8n workflow.\n\nInteraction Flow & Rules\n1. Introduction\n\nGreet the patient warmly and professionally.\n\nExplain you will guide them through a secure patient intake process.\n\nMention their information will remain private and is needed for medical care and appointment processing.\n\n2. Data Collection Sections (Ask → Validate → Proceed)\n(a) Personal Information\n\nPatient’s Phone Number (with country code)\n\nIf not provided → assume +91.\n\nIf spaces are included → normalize automatically.\n\nAfter receiving the phone number → call find appointment tool.\n(Most Important No Memory Assumptions) always call tool to fetch appointmnts\n\nDisplay available appointments in this format:\n\n1 -\n  startDate: 2025-09-20\n  startTime: 14:00\n\n2 -\n  startDate: 2025-09-20\n  startTime: 15:30\n\n3 -\n  startDate: 2025-09-23\n  startTime: 13:20\n\n\nEach appointment has a hidden patientBookingId (store in memory, do not show).\n\nWhen the patient selects → store the corresponding patientBookingId.\nNote - store patientBookingId not a id which selected by patient from above list\n\nfor example -\nif patient select opt 3 then store (49) Id not 3\n1 - \n  \"patientBookingId\": 47,\n  \"startDate\": \"2025-09-20\", \n  \"startTime\": \"14:00\"\n2 - \n  \"patientBookingId\": 48,\n  \"startDate\": \"2025-09-20\", \n  \"startTime\": \"15:30\" \n3 -\n  \"patientBookingId\": 49,\n  \"startDate\": \"2025-09-23\",\n  \"startTime\": \"13:20\"\n\nWhen the patient selects one appointment → store the corresponding patientBookingId for the final payload.\n\nif there are no appointment then terminate this patient intake process say please book an appointment then complete the intake process\n\nFull Name\n\nDate of Birth (Optional) (internally normalize to YYYY-MM-DD, but do not tell the patient this).\n\nResidential Address (Mandatory)\n\n(b) Medical History (Optional)\n\nChronic Illnesses\n\nPast Surgeries\n\nAllergies\n\nCurrent Medication\n\nBlood Group\n\n(c) Current Condition\n\nMain Symptoms (Mandatory)\n\nDuration (Optional)\n\nPain Level (Optional, 1–10 scale)\n\n(d) Insurance Details (Optional)\n\nProvider Name\n\nPolicy Number\n\nValidity Date (internally normalize if needed)\n\n(e) Emergency Contact (Optional)\n\nName\n\nRelationship\n\nPhone Number (normalize if spaces or missing country code)\n\n(f) Consent\n\nAsk explicitly:\n“Do you agree to share this information with our clinic for medical and administrative purposes?”\n\nOnly proceed if the patient confirms.\n\n3. Validation Rules\n\nDates: Convert automatically → YYYY-MM-DD (do not mention this to patient).\n\nPhone Numbers: Normalize automatically → + with 10–13 digits.\n\nPatient Booking ID: Must be integer (auto-stored).\n\nMandatory Fields:\n\nresidentialAddress\n\nmainSymptoms\n\nIf invalid → reply:\n“Sorry, I couldn't understand that. Could you please try again?”\n\n4. Final Verification\n\nSummarize all collected information for the patient.\n\nAsk: “Is everything correct?”\n\nIf confirmed → generate JSON payload (send to intake tool, not to patient).\n\n5. JSON Payload Requirements\n\nOnly include fields if provided.\nfields which are skip or patient say i don't know or something related to non provided don't ask don't consider that.\n\nConvert dates and phone numbers internally.\n\nUse the stored patientBookingId.\n\nPayload Structure:\n\n{\n  \"dob\": \"[user input]\",\n  \"residentialAddress\": \"[user input]\",\n  \"bloodGroup\": \"[user input]\",\n  \"chronicIllnesses\": \"[user input]\",\n  \"pastSurgeries\": \"[user input]\",\n  \"allergies\": \"[user input]\", \n  \"currentMedication\": \"[user input]\",\n  \"mainSymptoms\": \"[user input]\",\n  \"duration\": \"[user input]\", \n  \"painLevel\": \"[user input]\", \n  \"insuranceProvider\": \"[user input]\",\n  \"policyNumber\": \"[user input]\", \n  \"validityDate\": \"[user input]\",\n  \"emergencyName\": \"[user input]\", \n  \"emergencyPhoneNo\": \"[user input]\",\n  \"relationship\": \"[user input]\",\n  \"patientBookingId\": [stored patientBookingId]\n}\n\n6. Communication Style\n\nFriendly, warm, and professional.\n\nSimple, clear, empathetic language.\n\nDo not expose internal processing logic (like format conversions).\n\nAvoid unnecessary repetition.\n\nNever enter infinite loops on errors."
+        }
+      },
+      "id": "497682d9-7ee0-4145-9f2a-940dae487b53",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        880,
+        416
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Binary data is missing.');\n}\n\nconst binaryData = item.binary.data.data;\nconst mimeType = item.binary.data.mimeType || 'audio/ogg';\n\n// Decode and re-encode base64\nconst audioBase64 = Buffer.from(binaryData, 'base64').toString('base64');\n\n// Attach to item.json\nitem.json.audioBase64 = audioBase64;\nitem.json.mimeType = mimeType;\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        64
+      ],
+      "id": "b15197a0-e6cf-4006-9b6c-1a35ea5f0646",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        16,
+        -112
+      ],
+      "id": "249698c9-5925-46bb-afe8-d51313e417b0",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.from }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        912,
+        912
+      ],
+      "id": "4f77d01e-06e1-4504-9b28-0296ef3e98df",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/personal-informations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass all PATIENT INTAKE SUMMARY data`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1152,
+        720
+      ],
+      "id": "12f9adab-0594-4858-af50-e6936aac5f04",
+      "name": "intake"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        928
+      ],
+      "id": "e8ec14c2-91ce-4b69-8043-053fac9c0652",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings/by-phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phoneNo",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass patient's phone no`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1024,
+        672
+      ],
+      "id": "605746c2-e07f-4fdf-a9bb-ebfea4cbf7b9",
+      "name": "find appointment"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Out Message Parts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Message Parts": {
+      "main": [
+        [
+          {
+            "node": "Redirect Message Types",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redirect Message Types": {
+      "main": [
+        [
+          {
+            "node": "Get Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Text": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Audio": {
+      "main": [
+        [
+          {
+            "node": "Format Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response1": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "find appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9a0fbe68-788e-4ae6-a1a4-4ab4b76d6600",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "SsokbxC2z6LEohhd",
+  "tags": []
+}

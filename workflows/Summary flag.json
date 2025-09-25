@@ -1,0 +1,275 @@
+{
+  "name": "Summary flag",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "summary_flag",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -784,
+        208
+      ],
+      "id": "ea788c80-6283-44ce-bd30-887049de062f",
+      "name": "Webhook",
+      "webhookId": "e89c5fdf-b928-40a5-90cc-477081b4c662"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "722383954288560",
+        "recipientPhoneNumber": "={{ $json.body.patientPhoneNo }}",
+        "textBody": "={{ $json.body.summary }}\n",
+        "additionalFields": {}
+      },
+      "id": "d317364a-28e3-4be6-b604-48656c8ebf31",
+      "name": "output2",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        0,
+        0
+      ],
+      "typeVersion": 1,
+      "webhookId": "77a0150a-8819-49b2-88c7-ab75560f62e7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=whatsapp-tutorial-{{ $json.from }}231"
+      },
+      "id": "f05d9107-5905-429b-b60f-76130652add9",
+      "name": "memory2",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -288,
+        528
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/report-summaries/{{ $('If').item.json.body.summaryId }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={\n\"summary\":{{ JSON.stringify($json.output) }},\n\"status\":0\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        224
+      ],
+      "id": "eda9388a-d48a-4f7b-b9fa-166309d87583",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.summary }}",
+        "options": {
+          "systemMessage": "=# Medical Report Summary Revision Prompt\n\nYou are a medical communication specialist tasked with revising medical report summaries to make them patient-friendly and actionable.\n\n## Context\nMedical reports often contain complex terminology that patients struggle to understand. Your role is to transform technical medical data into clear, accessible information that empowers patients to understand their health status and take appropriate action.\n\n## Task Requirements\nWhen given an original medical report summary and specific feedback, you must:\n\n### 1. Analysis Phase\n- Carefully review the original summary and all provided feedback\n- Identify technical jargon that needs simplification\n- Note any missing patient-friendly explanations\n- Assess organizational structure for patient clarity\n\n### 2. Content Structure\nOrganize the revised summary into exactly four sections:\n- **Introduction**: Patient identification and report purpose\n- **Cholesterol and Lipid Profile**: Heart health indicators\n- **HbA1c/Blood Sugar**: Diabetes risk and blood sugar control\n- **Overall Summary with Patient Action Points**: Key takeaways and next steps\n\n### 3. Language Guidelines\n- Replace medical terminology with everyday language\n- Use \"Important\" to flag critical findings requiring immediate attention\n- Use \"Good\" to highlight positive health indicators\n- Use \"Needs attention\" for areas requiring follow-up or improvement\n- Avoid all special characters and formatting symbols\n- Include reference ranges in parentheses using plain language\n\n### 4. Content Priorities\n- Patient comprehension over medical precision\n- Actionable insights over technical details\n- Motivational tone that encourages proactive health management\n- Clear explanation of what numbers mean for the patient's health\n\n### 5. Technical Constraints\n- Maximum 4000 characters total\n- Plain text only (no markdown, bullets, or special formatting)\n- Conversational, supportive tone\n- Eliminate medical abbreviations or explain them immediately\n\n### 6. Quality Standards\nThe revised summary must:\n- Be immediately understandable to someone without medical training\n- Clearly explain what each test result means for their health\n- Provide specific, actionable next steps\n- Maintain medical accuracy while prioritizing clarity\n- Create a narrative that connects individual results to overall health picture\n\n## Input Variables\nYou will receive:\n- **Input Feedback**: {{ $json.body.feedback }}\n- **Old Summary**: {{ $json.body.summary }}\n\n## Output Format\nProvide only the revised medical report summary as plain text, ensuring it meets all requirements above and addresses every point raised in the provided feedback."
+        }
+      },
+      "id": "2868d389-b654-4a87-9d4f-e695c36e29ad",
+      "name": "summeries report",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -224,
+        224
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ef2255bf-7846-4399-a355-b56d334f1d5b",
+              "leftValue": "={{ $json.body.status }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -576,
+        208
+      ],
+      "id": "094396c0-58ff-4152-b544-21158752cfce",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -464,
+        512
+      ],
+      "id": "b6b96cf7-06f1-40a0-8970-afd7144d0fa0",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "workflows.softwarecompanyindia.com",
+            "x-real-ip": "173.255.192.198",
+            "x-forwarded-for": "173.255.192.198",
+            "x-forwarded-proto": "https",
+            "content-length": "3628",
+            "accept": "application/json, text/plain, */*",
+            "content-type": "application/json",
+            "user-agent": "axios/1.11.0",
+            "accept-encoding": "gzip, compress, deflate, br"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "summaryId": 24,
+            "status": 2,
+            "summary": "PATIENT-FRIENDLY MEDICAL REPORT SUMMARY\n\n1. Your Overall Health Picture  \nMiss Madhuja, your recent blood tests give us important information about your health, especially your blood and thyroid. Your thyroid is working normally, which means your metabolism and energy levels are likely well balanced. However, your blood tests show you have a type of anemia called microcytic anemia, where red blood cells are smaller than usual and fewer in number. This can make you feel tired, weak, or pale. Your vitamin B12 level is within the normal range but near the low side, so it may need monitoring, especially if you have symptoms like numbness or tingling.\n\n2. What Your Tests Found  \nYour hemoglobin and hematocrit are low, confirming anemia. The size of your red blood cells (MCV) is smaller than normal, which helps doctors identify the kind of anemia you have. Your platelets, which help your blood clot, are slightly low but not critically so. Most other blood values are normal. Your vitamin B12 is just inside the normal range but on the lower side, which could become a concern if symptoms appear. Your thyroid hormone level (TSH) is normal, indicating your thyroid is healthy.\n\n3. Your Diagnosis Explained  \nThe anemia you have is called microcytic anemia, often caused by lack of iron, chronic illness, or rarely inherited conditions. Since your vitamin B12 is not very low, it is unlikely the main cause of your anemia but should be watched closely. Your normal thyroid function suggests the anemia is not related to thyroid problems.\n\n4. Your Treatment Plan  \nYour doctor will likely suggest further tests to check your iron levels, including ferritin and iron in your blood, to find the exact cause of your anemia. A blood smear may also be done to look closely at your red blood cells. Depending on these results, treatment might include iron supplements or dietary changes to increase iron intake. If your nerve symptoms suggest vitamin B12 issues, your doctor might also consider vitamin B12 treatment. Regular follow-up tests will check how you respond to treatment.\n\n5. What You Need to Do Next  \nMake a follow-up appointment to discuss these results and get additional blood tests for iron and related markers. Pay attention to symptoms like unusual tiredness, shortness of breath, pale skin, or numbness in your hands or feet and report these promptly to your doctor. Follow their instructions on any supplements or diet changes. Regular monitoring is important to improve your anemia and prevent symptoms from worsening.\n\nThis summary helps you understand your health information. Please discuss questions with your healthcare provider for personalized medical advice.",
+            "feedback": "Incomplete information: The summary doesn't mention that this was a \"Non Fasting Sample\" which is relevant for interpreting triglyceride levels.\nThe summary doesn't include the actual reference ranges shown in the original report, making it harder for the patient to understand the specific targets.",
+            "fileUrl": {
+              "fieldname": "data",
+              "fileName": "File.jpg",
+              "fileUrl": "http://173.255.192.198:3034/files/20250923T092142432Z_File.jpg",
+              "encoding": "7bit",
+              "mimetype": "image/jpeg",
+              "size": 135235
+            },
+            "patientPhoneNo": "+919067335884",
+            "message": "Your summary is rejected. Feedback: Incomplete information: The summary doesn't mention that this was a \"Non Fasting Sample\" which is relevant for interpreting triglyceride levels.\nThe summary doesn't include the actual reference ranges shown in the original report, making it harder for the patient to understand the specific targets."
+          },
+          "webhookUrl": "https://workflows.softwarecompanyindia.com/webhook/summary_flag",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "summeries report",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summeries report": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "output2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "summeries report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "summeries report",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "539f94e7-78f3-4ac2-9b9a-264ded2e2c34",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "nC8unPlfVJJ2arPm",
+  "tags": []
+}

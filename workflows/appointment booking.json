@@ -1,0 +1,2270 @@
+{
+  "name": "appointment booking",
+  "nodes": [
+    {
+      "parameters": {
+        "toolDescription": "pass the ID from patients",
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{$fromAI(\"id\")}}/cancel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1024,
+        880
+      ],
+      "id": "5a875d91-386b-4ecc-943c-128e62b61f32",
+      "name": "cancle",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}/reschedule",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient reschedule data(doctorId,doctorTimeSlotId)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1040,
+        1168
+      ],
+      "id": "07a83503-2d0e-4890-85ae-d896c3de8ca9",
+      "name": "reschedule",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -784,
+        1088
+      ],
+      "id": "2937cc88-ecbc-4d56-99cb-fca62b487857",
+      "name": "patients",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient all data(don't pass AM or PM for starttime and endtime)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -640,
+        1200
+      ],
+      "id": "2f6dbfe9-ce0d-420c-a359-7bc7b8580ab8",
+      "name": "Booking",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "to fetch doctors",
+        "url": "http://173.255.192.198:3034/doctors/by-specialization-and-branch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId`, 'string') }}"
+            },
+            {
+              "name": "branchId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass branchId`, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -128,
+        1200
+      ],
+      "id": "85214cbd-711e-499b-9f5a-23d9c7d8e354",
+      "name": "Doctors",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/specializations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        112,
+        1120
+      ],
+      "id": "b74dea97-31c5-4c86-907f-a702e13818e3",
+      "name": "Specialisation",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -752,
+        272
+      ],
+      "id": "05d25145-c790-4e57-8ae8-702e04ccd5a9",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}\n(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=# Enhanced Appointment Scheduling Bot with Session Management\n\nYou are an Appointment Scheduling Bot with enhanced session management capabilities. Always follow these steps with no memory assumptions and only use fresh data from the relevant tools at each stage. Validate every parameter before passing it to the next tool or outputting to the user. Confirm data accuracy by referencing the immediate response from each tool call.\n\n## **CRITICAL SESSION MANAGEMENT RULES:**\n\n1. **ALWAYS CHECK SESSION DATA FIRST** when user:\n   - Mentions \"my booking\", \"my appointment\", \"booking ID\"\n   - Wants to reschedule or cancel existing appointment\n   - Asks about their previous interactions\n   - **Use \"Get User Session Data\" tool with phone_number parameter**\n\n2. **PERSONALIZED RESPONSES** using session data:\n   - Address user by name if available in session\n   - Reference their previous bookings and preferences\n   - Suggest same doctor/specialization from history\n   - Remember their city preference\n\n3. **UPDATE SESSION DATA** using \"Update User Session\" tool after:\n   - Collecting patient details (name, email, age, gender)\n   - User expresses preferences (city, specialization, doctor)\n   - Successful booking completion\n   - Significant conversation milestones\n\n4. **STORE BOOKING DATA** using \"Store Booking Session\" tool:\n   - Immediately after successful booking confirmation\n   - Include all booking details for future reference\n\n## **Main Flow: New Appointment Booking**\n\n**Step 1: Collect User Information**\n- **If user mentions \"my booking\", \"my appointment\", or booking ID → Use \"Get User Session Data\" tool first**\n- Ask the user if they want to book a new appointment or reschedule an existing one\n- If new appointment:\n  - Ask for the purpose of their appointment or illness\n  - Ask which city they want to book the appointment in (suggest previous city from session if available)\n\n**Step 2: Fetch Specialization**\n- Use the \"Specialisation Tool\" with the user's purpose\n- Extract and validate the specialization ID(s)\n- Confirm the specialization with the user\n- **After user confirms: Use \"Update User Session\" tool to save specialization preference**\n\n**Step 3: Fetch Hospitals in City**\n- Use the \"City Tool\" with validated specialization ID and city\n- Retrieve and validate hospitals and branchId(s)\n- Present hospitals to the user and confirm selected hospital and branchId\n- **After user confirms: Use \"Update User Session\" tool to save city preference**\n\n**Step 4: Fetch Doctors**\n***imp***imp****(before passing data to Doctors Tool refetch all city, specialization tool to verify correct Id's\n- Use the \"Doctors Tool\" with specializationId and branchId\n- Mandatory - Retrieve fresh doctors list\n- Validate doctor IDs\n- Present doctors to the user and confirm doctor selection\n- **After user confirms: Use \"Update User Session\" tool to save doctor preference**\n\n**Step 5: Check Doctor Availability**\n- Use \"Availability Tool\" with doctorId and branchId\n- Mandatory - (always convert fetched time into indian asia/kolkata time (+5:30) ) then\n- Show available slots, time formatted as \"HH:mm\" (e.g., \"09:30\") without seconds or AM/PM\n- (Note only slots whose \"isBooked\": false)\n\n**Step 6: Book Appointment - Collect Details**\n- Collect purposeOfMeet, patientName, phoneNo (with country code), email (validate), age, gender\n- Confirm all details with user before booking\n- **After collecting details: Use \"Update User Session\" tool to save patient information**\n\n**Step 7: Final Booking Call (Strict Validation)**\nbefore passing data to booking tool refetch all previous city, specialization,doctor availability tool to verify correct Id's\nPrepare booking payload with validated data:\n\n```json\n{\n  \"purposeOfMeet\":\"[user input]\",\n  \"doctorId\":[validated doctorId],\n  \"doctorTimeSlotId\":[doctorTimeSlotId],\n  \"patientFullDetail\": {\n    \"patientName\":\"[user input]\",\n    \"phoneNo\": \"[user input]\",\n    \"email\":\"[validated user email]\",\n    \"age\":[user input],\n    \"gender\":\"[user input]\"\n  }\n}\n```\nDO NOT use default or static values except patientId=1.\n\nConfirm IDs and fields with user; refetch fresh data if any ID equals 1 or is invalid.\n\nPass payload exactly as shown to \"Booking Tool\".\n\n-after appointment booked using \"Booking Tool\":\n**MANDATORY SESSION STEPS:**\n1. **Use \"Store Booking Session\" tool with ALL booking details immediately**\n2. Create event in \"Create appointment tool\" with Summary containing: patient appointment Id, patient name, email, purposeOfMeet and phone no with +91 country code\n3. **Use \"Update User Session\" tool to save booking ID and mark booking complete**\n4. Send an email to user that appointment is booked successfully with \"Summary\" data\n\n(don't forgot this step)\n\n**Step 8: Confirm Booking**\n- Inform the user of successful booking\n- Show booking details and confirmation.(Never forgot to show booking id because its required for future uses)\n- (dont show and save calander id.)\n- Save the generated appointment ID from booking response for rescheduling\n\nafter booking confirm ask patient do you want to fill intake form\nif patient say \"yes\"\n\n**step 9:** call external \"intake\" tool and complete the intake process using \"intake\" tool (dont ask what you would like to include in the intake form also until complete intake process call this tool) just call \"intake\" tool you will get all info from there and call that tool untile get all intake information from tool.\n\nif no\nsay Thank you.\n\n**Step 9: Intake Process**\nIf patient says \"yes\" to intake form:\n- Call \"intake\" tool and complete process\n- Don't ask what to include - tool handles everything\n\n## **Rescheduling Flow (Session-Enhanced)**\n\nWhen user wants to reschedule:\n1. **Use \"Get User Session Data\" tool** to find their booking history\n2. If multiple bookings exist, let user choose which one\n3. If user provides appointment ID, use \"patients\" tool to fetch appointment data\n4. **MANDATORY:** Convert fetched time to Indian Asia/Kolkata time (+5:30)\n5. Use \"Availability Tool\" to show available slots for same doctor\n6. Before rescheduling:\n   - Fetch event from \"fetch appointment\" tool using patient email\n   - Extract event ID\n7. Use \"reschedule\" tool with new appointment details\n8. After rescheduling:\n   - Update event using \"Update appointment\" tool with extracted event ID\n   - **Update session data with new booking details**\n   - Send email confirmation\n\n## **Cancellation Flow (Session-Enhanced)**\n\nWhen user wants to cancel:\n1. **Use \"Get User Session Data\" tool** to find their bookings\n2. Show booking details and ask for confirmation\n3. Use \"patients\" tool to get full appointment data\n4. Before cancellation:\n   - Fetch event from \"fetch appointment\" tool using patient email\n   - Extract event ID\n5. Use \"cancel\" tool to cancel appointment\n6. After cancellation:\n   - Delete event using \"cancel appointment\" tool with extracted event ID\n   - **Update session to mark booking as cancelled**\n   - Send email confirmation\n\n## **Session-Aware Response Examples:**\n\n**New User:** \"Hello! I'd like to help you book an appointment. What type of doctor do you need to see?\"\n\n**Returning User:** \"Welcome back [Name]! I see you previously booked with Dr. [Doctor Name] for [Specialization] in [City]. Would you like to book another appointment or need help with your existing booking (ID: [BookingID])?\"\n\n**Booking Inquiry:** \"Let me check your booking details...\" → Use \"Get User Session Data\" → \"Your appointment ID is [ID] scheduled with Dr. [Name] on [Date] at [Time].\"\n\n## **Additional Notes:**\n- Always fetch fresh data from tools; never reuse or assume previous IDs\n- Time must be in strict \"HH:mm\" format without seconds or AM/PM\n- PatientId remains 1 as per system design\n- Confirm every critical step and data point with user for accuracy\n- Handle errors gracefully and guide user to correct inputs\n- **Session data enables personalized experience while maintaining data accuracy**\n\n## **Sub Workflow Process:**\nWhen patient asks about intake form, call \"intake\" tool and complete intake process.\n\n**Current timedate:** {{ $now }}\n\n**Available Session Context:**\n- User phone: {{ $('Session Context Manager').item.json.session_context.user_phone }}\n- Session ID: {{ $('Session Context Manager').item.json.session_context.session_id }}\n- Current step: {{ $('Session Context Manager').item.json.session_context.conversation_flow.current_step }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        704
+      ],
+      "id": "60d5f4c0-475e-400e-a5e2-7d0034485a8b",
+      "name": "AI Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}",
+        "textBody": "={{ $json.Output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a7fe2938-67a1-4a4c-b381-7e81866eff62",
+      "name": "Send message",
+      "webhookId": "432b0d53-ab00-4ed4-8f2f-6614415832cf",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1456,
+        -144
+      ],
+      "id": "f8fe0be2-4af2-4a1d-8d24-c9cff46b0be2",
+      "name": "WhatsApp Trigger",
+      "webhookId": "3f9fac7a-9858-401a-866b-b93ca7153241",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Session Context Manager').item.json.session_context.user_phone }}44"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -992,
+        432
+      ],
+      "id": "9de8d549-9a61-46cb-9585-142914b742a9",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        336,
+        880
+      ],
+      "id": "78ce3500-878d-40eb-b442-9db55765d98d",
+      "name": "Send a message in Gmail",
+      "webhookId": "eb853a43-19cb-4ad1-a8d8-02d5b3e7e97c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        160,
+        256
+      ],
+      "id": "319c0dbb-433d-4280-8839-b78e160ee916",
+      "name": "Create appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+              ]
+            }
+          },
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        432
+      ],
+      "id": "06c4b24b-b791-400e-8647-7157fb1aef0a",
+      "name": "Update appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -1040,
+        640
+      ],
+      "id": "882d1521-5e29-4ccf-94d4-69e2857a5d67",
+      "name": "cancle appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        352,
+        672
+      ],
+      "id": "5b1a24ea-5f69-429c-aa40-2d06e7914f00",
+      "name": "fetch  appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/branches/by-specialization",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId here`, 'string') }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass city here`, 'string') }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        384,
+        1216
+      ],
+      "id": "9831aaf3-3cdc-489d-a47e-dcf73acff805",
+      "name": "city",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/doctor-availabilities/daily-slots",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass doctorId and branchId`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -368,
+        1120
+      ],
+      "id": "b2905a35-3b0c-4b79-a88b-2e8d55de4a5c",
+      "name": "Availability",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input data from previous node\nconst data = items[0].json;\n\nconst steps = [];\nconst tokens = [];\nlet totalTokens = 0;\n\n// Loop through intermediate steps\nfor (const step of data.intermediateSteps) {\n  const toolName = step.action.tool;\n  steps.push(toolName);\n\n  const usage = step.action.messageLog[0].kwargs.usage_metadata;\n  const tokenCount = usage.total_tokens;\n  tokens.push({\n    tool: toolName,\n    input_tokens: usage.input_tokens,\n    output_tokens: usage.output_tokens,\n    total_tokens: tokenCount\n  });\n\n  totalTokens += tokenCount;\n}\n\nreturn [\n  {\n    json: {\n      steps,\n      tokens,\n      totalCost: totalTokens\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -240,
+        352
+      ],
+      "id": "3258df97-fd38-4e8b-a04f-3e03e30a8e2a",
+      "name": "Code",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8",
+          "mode": "list",
+          "cachedResultName": "logs for apt booking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('D hh:mm a') }}",
+            "Workflow": "Appointment Process",
+            "Input": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+            "Output": "={{ $('AI Agent').item.json.output }}",
+            "steps": "={{ $json.steps }}",
+            "tokens": "={{ $json.tokens }}",
+            "totalCost": "={{ $json.totalCost }}",
+            "gemini flash -2.5 cost": "={{ $json.totalCost/1000000 * 0.50}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "steps",
+              "displayName": "steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tokens",
+              "displayName": "tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "totalCost",
+              "displayName": "totalCost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gemini flash -2.5 cost",
+              "displayName": "gemini flash -2.5 cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -64,
+        176
+      ],
+      "id": "35fbe5da-552e-4738-af79-eb2a2784a303",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L97vJh50Ta02JN2u",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        768,
+        1168
+      ],
+      "id": "6d5c2e2e-9f4d-4e99-b032-277fe5c19bda",
+      "name": "intake",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Retrieve user's session data when they ask about 'my booking' or personal info",
+        "documentId": {
+          "__rl": true,
+          "value": "1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 500081992,
+          "mode": "list",
+          "cachedResultName": "User_Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit#gid=500081992"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        944,
+        1008
+      ],
+      "id": "7aa50ad6-ba31-453e-acff-17d08c7ad7d3",
+      "name": "Get User Session Data",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L97vJh50Ta02JN2u",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Enhanced Session Context Manager for Booking Agent\nconst phoneNumber = $input.all()[0].json.messages[0].from;\nconst messageText = $input.all()[0].json.messages[0].text.body;\nconst timestamp = new Date().toISOString();\nconst sessionId = `${phoneNumber}_${new Date().toISOString().split('T')[0]}`;\n\n// Create comprehensive session context\nconst sessionContext = {\n  user_phone: phoneNumber,\n  session_id: sessionId,\n  last_interaction: timestamp,\n  message_text: messageText,\n  conversation_flow: {\n    current_step: determineCurrentStep(messageText),\n    last_action: null,\n    booking_in_progress: false,\n    needs_session_data: shouldFetchSessionData(messageText)\n  },\n  user_data: {\n    name: null,\n    email: null,\n    age: null,\n    gender: null\n  },\n  booking_context: {\n    current_appointment_id: null,\n    specialization_id: null,\n    doctor_id: null,\n    branch_id: null,\n    doctor_time_slot_id: null,\n    purpose_of_meet: null\n  },\n  session_stats: {\n    message_count: 1,\n    session_start: timestamp,\n    last_booking_id: null\n  }\n};\n\nfunction determineCurrentStep(message) {\n  const lowerMsg = message.toLowerCase();\n  if (lowerMsg.includes('book') || lowerMsg.includes('appointment')) {\n    return 'booking_initiation';\n  } else if (lowerMsg.includes('reschedule')) {\n    return 'rescheduling';\n  } else if (lowerMsg.includes('cancel')) {\n    return 'cancellation';\n  } else if (lowerMsg.includes('my booking') || lowerMsg.includes('booking id') || lowerMsg.includes('my appointment')) {\n    return 'booking_inquiry';\n  } else if (lowerMsg.includes('intake')) {\n    return 'intake_form';\n  }\n  return 'general_inquiry';\n}\n\nfunction shouldFetchSessionData(message) {\n  const lowerMsg = message.toLowerCase();\n  return lowerMsg.includes('my') || lowerMsg.includes('reschedule') || lowerMsg.includes('cancel') || lowerMsg.includes('booking id');\n}\n\nreturn [{\n  json: {\n    ...$input.all()[0].json,\n    session_context: sessionContext\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1248,
+        -144
+      ],
+      "id": "3f77f894-d118-4bba-a521-89cd7f6d63c6",
+      "name": "Session Context Manager",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Update or create user session data. Use after collecting user info or booking completion.",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 500081992,
+          "mode": "list",
+          "cachedResultName": "User_Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit#gid=500081992"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [
+            "phone_number"
+          ],
+          "schema": [
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_interaction",
+              "displayName": "last_interaction",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "conversation_stage",
+              "displayName": "conversation_stage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_name",
+              "displayName": "user_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_email",
+              "displayName": "user_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_booking_id",
+              "displayName": "current_booking_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_booking_id",
+              "displayName": "last_booking_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "specialization_preference",
+              "displayName": "specialization_preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "city_preference",
+              "displayName": "city_preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "doctor_preference",
+              "displayName": "doctor_preference",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_count",
+              "displayName": "message_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_data",
+              "displayName": "session_data",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        1008,
+        784
+      ],
+      "id": "1e106aed-885e-4d51-acbe-be34c6953266",
+      "name": "Update User Session",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L97vJh50Ta02JN2u",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Store completed booking information. Use immediately after successful booking.",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1788046274,
+          "mode": "list",
+          "cachedResultName": "Booking_History",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit#gid=1788046274"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "booking_id",
+              "displayName": "booking_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "displayName": "phone_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_name",
+              "displayName": "patient_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "patient_email",
+              "displayName": "patient_email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "doctor_id",
+              "displayName": "doctor_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "branch_id",
+              "displayName": "branch_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "appointment_datetime",
+              "displayName": "appointment_datetime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "purpose_of_meet",
+              "displayName": "purpose_of_meet",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "booking_status",
+              "displayName": "booking_status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "calendar_event_id",
+              "displayName": "calendar_event_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "specialization_name",
+              "displayName": "specialization_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "city",
+              "displayName": "city",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        496,
+        1456
+      ],
+      "id": "01ba8b80-95bb-4ab1-8f26-fbd4b7b8cda9",
+      "name": "Store Booking Session",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L97vJh50Ta02JN2u",
+          "name": "Google Sheets account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "pass the ID from patients",
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{$fromAI(\"id\")}}/cancel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1408,
+        3696
+      ],
+      "id": "644989e2-9a0f-4608-a790-ad421d178905",
+      "name": "cancle1"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}/reschedule",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient reschedule data(doctorId,doctorTimeSlotId)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1424,
+        3984
+      ],
+      "id": "3ce2d13f-f36a-4842-b2f8-e72648745f46",
+      "name": "reschedule1"
+    },
+    {
+      "parameters": {
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1168,
+        3904
+      ],
+      "id": "d5401309-b6a0-4b3f-b534-bd37b0799e0f",
+      "name": "patients1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient all data(don't pass AM or PM for starttime and endtime)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1024,
+        4016
+      ],
+      "id": "9af321a7-9a79-49d6-9894-4efb482272a9",
+      "name": "Booking1"
+    },
+    {
+      "parameters": {
+        "toolDescription": "to fetch doctors",
+        "url": "http://173.255.192.198:3034/doctors/by-specialization-and-branch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId`, 'string') }}"
+            },
+            {
+              "name": "branchId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass branchId`, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -512,
+        4016
+      ],
+      "id": "16a3e643-cf90-4701-8be1-126ff1357326",
+      "name": "Doctors1"
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.1.14:3000/specializations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -272,
+        3936
+      ],
+      "id": "6614ffe7-3dd6-47fa-adfb-d8242cee1fd1",
+      "name": "Specialisation1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}\n(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=Appointment Scheduling Bot Prompt (Including Rescheduling and Calceling)\n\nYou are an Appointment Scheduling Bot. Always follow these steps with no memory assumptions and only use fresh data from the relevant tools at each stage. Validate every parameter before passing it to the next tool or outputting to the user. Confirm data accuracy by referencing the immediate response from each tool call.\n\nMain Flow: New Appointment Booking\nStep 1: Collect User Information\n\nAsk the user if they want to book a new appointment or reschedule an existing one.\n\nIf new appointment:\n\n+{{ $json.metadata.display_phone_number }} take this number and call \n\nStep 2: Fetch Specialization\n\nUse the \"Specialisation Tool\" with the user's purpose.\n\nExtract and validate the specialization ID(s).\n\nConfirm the specialization with the user.\n\nStep 3: Fetch Hospitals in City\n\nUse the \"City Tool\" with validated specialization ID and city.\n\nRetrieve and validate hospitals and branchId(s).\n\nPresent hospitals to the user and confirm selected hospital and branchId.\n\nStep 4: Fetch Doctors\n***imp***imp****(before passing data to Doctors Tool refetch all city, specialization tool to verify correct Id's\n\nUse the \"Doctors Tool\" with  specializationId and branchId.\nMandatory - \n\nRetrieve fresh doctors list.\n\nValidate doctor IDs.\n\nPresent doctors to the user and confirm doctor selection.\n\nStep 5: Check Doctor Availability\n\nUse \"Availability Tool\" with doctorId and branchId.\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) ) then\nShow available slots, time formatted as \"HH:mm\" (e.g., \"09:30\") without seconds or AM/PM.\n\n(Note only slots whose \"isBooked\": false)\n\nStep 6: Book Appointment - Collect Details\n\nCollect purposeOfMeet, patientName, phoneNo (with country code), email (validate), age, gender.\n\nConfirm all details with user before booking.\n\nStep 7: Final Booking Call (Strict Validation)\nbefore passing data to booking tool refetch all previous city, specialization,doctor availability tool to verify correct Id's\nPrepare booking payload with validated data:\n\njson\n{\n  \"purposeOfMeet\":\"[user input]\",\n  \"doctorId\":[validated doctorId],\n  \"doctorTimeSlotId\":[doctorTimeSlotId],\n  \"patientFullDetail\": {\n    \"patientName\":\"[user input]\",\n    \"phoneNo\": \"[user input]\",\n    \"email\":\"[validated user email]\",\n    \"age\":[user input],\n    \"gender\":\"[user input]\"\n  }\n}\nDO NOT use default or static values except patientId=1.\n\nConfirm IDs and fields with user; refetch fresh data if any ID equals 1 or is invalid.\n\nPass payload exactly as shown to \"Booking Tool\".\n\n-after appointment booked using \"Booking Tool\" event create in \"Create appointment tool\" and in \"Summary\" store patient appointment Id, patient name,email,purposeOfMeet and phone no with +91 country code.\nalso in title of calander event store \"Summary\" data\n\n(don't forgot this step)\n- after appointment is booked using \"create appointment tool\" send an email to user enter mail that your appointment is booked successfully with \"Summary\" data.\n\nStep 8: Confirm Booking\n\nInform the user of successful booking.\n\nShow booking details and confirmation.(Never forgot to show booking id because its required for future uses)\n(dont show and save calander id.)\n\nSave the generated appointment ID from booking response for rescheduling.\n\nafter booking confirm ask patient do you want to fill intake form\nif patient say \"yes\"\n\nstep 9: call external \"intake\" tool and complete the intake process using \"intake\" tool (dont ask what you would like to include in the intake form also until complete intake process call this tool) just call \"intake\" tool you will get all info from there and call that tool untile get all intake information from tool.\n\nif no\nsay Thank you.\n\nRescheduling Flow\n# If the user want to reschedule the Appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter\n(don't forget below step to fetch available slots by using Availability tool)\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) )\n\nlater show the available slots for the particular doctor by fetch the data of available slots from \"Availability\" tool and then use the \"reschedule\" tool to reschedule the appoinment, when rescheduling the appoinment make sure the patient id is proper no memory asumptions get fresh data\n\n- before appointment reschedule in \"reschedule\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment reschedule using \"reschedule\" tool update event in \"Update appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is reschedule send an email to patient  email which you will get from 'patients' tool that your appointment is reschedule successfully.\n\nCancel Flow\n# If the user want to cancle the appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter (no memory assumptions give from patients tool)  and show the user and take confirmation and then use \"cancle\" tool to cancle the appoinment. when canceling the appoinment make sure the patient id is proper (no memory asumptions get fresh data)\n\n- before appointment cancle in \"cancle appointment\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment cancle using \"cancle\" tool delete event in \"cancle appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is cancle send an email to user enter mail that your appointment is cancle successfully.\n\nAdditional Notes:\n\nAlways fetch fresh data from tools; never reuse or assume previous IDs.\n\nTime must be passed in strict \"HH:mm\" format without seconds or AM/PM.\n\nPatientId remains 1 as per system design.\n\nConfirm every critical step and data point with user for accuracy.\n\nStore and use appointment ID generated at booking time for validating and rescheduling.\n\nHandle errors gracefully and guide the user to correct inputs.\n\n######Sub Workflow call process########\nwhen patient ask i want to fill Intake form something similar related to intake call \"intake\" tool and complete intake process using that tool\n\nCurrent timedate: {{ $now }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -784,
+        3520
+      ],
+      "id": "9dc61db7-7c9b-4efd-b468-f3ca418fbc73",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}",
+        "textBody": "={{ $json.Output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        2816
+      ],
+      "id": "aecc69fa-65b7-457f-9bd5-1c949eba3e78",
+      "name": "Send message1",
+      "webhookId": "432b0d53-ab00-4ed4-8f2f-6614415832cf",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        3312
+      ],
+      "id": "bc2dd30f-1233-48ab-a685-ef32150c6406",
+      "name": "WhatsApp Trigger1",
+      "webhookId": "3f9fac7a-9858-401a-866b-b93ca7153241",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.metadata['phone_number_id'] }}2155"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1376,
+        3248
+      ],
+      "id": "8a8c6d1d-5ab7-4ece-9870-44b23cddb4ff",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        3696
+      ],
+      "id": "405047e7-bd9a-4af4-8788-434673791f29",
+      "name": "Send a message in Gmail1",
+      "webhookId": "eb853a43-19cb-4ad1-a8d8-02d5b3e7e97c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -224,
+        3072
+      ],
+      "id": "7941560b-dc9f-4051-8c94-7476db4ce440",
+      "name": "Create appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+              ]
+            }
+          },
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        3248
+      ],
+      "id": "1bf0b42a-cd7a-4465-b558-0104ebb57fc4",
+      "name": "Update appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -1424,
+        3456
+      ],
+      "id": "b4c1588c-bbeb-4dd4-aaa3-d19683d1188c",
+      "name": "cancle appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        3488
+      ],
+      "id": "6dc48af0-6b10-4c5a-a421-5d738d605375",
+      "name": "fetch  appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/branches/by-specialization",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId here`, 'string') }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass city here`, 'string') }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        80,
+        4160
+      ],
+      "id": "30b5ce10-f27f-4c58-984c-4b541778a26a",
+      "name": "city1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/doctor-availabilities/daily-slots",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass doctorId and branchId`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -752,
+        3936
+      ],
+      "id": "4d5c8125-6e31-4df7-b49a-f9002bb82666",
+      "name": "Availability1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input data from previous node\nconst data = items[0].json;\n\nconst steps = [];\nconst tokens = [];\nlet totalTokens = 0;\n\n// Loop through intermediate steps\nfor (const step of data.intermediateSteps) {\n  const toolName = step.action.tool;\n  steps.push(toolName);\n\n  const usage = step.action.messageLog[0].kwargs.usage_metadata;\n  const tokenCount = usage.total_tokens;\n  tokens.push({\n    tool: toolName,\n    input_tokens: usage.input_tokens,\n    output_tokens: usage.output_tokens,\n    total_tokens: tokenCount\n  });\n\n  totalTokens += tokenCount;\n}\n\nreturn [\n  {\n    json: {\n      steps,\n      tokens,\n      totalCost: totalTokens\n    }\n  }\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -624,
+        3168
+      ],
+      "id": "09ed4eec-870c-41c2-8f78-e33badcc088c",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8",
+          "mode": "list",
+          "cachedResultName": "logs for apt booking",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s8wF3llItPRMdYynnUp0uncx7dAZ1xhUcs4agwbbMR8/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now.format('D hh:mm a') }}",
+            "Workflow": "Appointment Process",
+            "Input": "={{ $('WhatsApp Trigger1').item.json.messages[0].text.body }}",
+            "Output": "={{ $('AI Agent1').item.json.output }}",
+            "steps": "={{ $json.steps }}",
+            "tokens": "={{ $json.tokens }}",
+            "totalCost": "={{ $json.totalCost }}",
+            "gemini flash -2.5 cost": "={{ $json.totalCost/1000000 * 0.50}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "steps",
+              "displayName": "steps",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tokens",
+              "displayName": "tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "totalCost",
+              "displayName": "totalCost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gemini flash -2.5 cost",
+              "displayName": "gemini flash -2.5 cost",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -448,
+        2992
+      ],
+      "id": "313c6a28-6b76-40bd-b701-0bfd9d4a25f7",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "L97vJh50Ta02JN2u",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        384,
+        3984
+      ],
+      "id": "eceb12ff-83ae-45b0-b50f-9a8fcc84dbb7",
+      "name": "intake1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -1360,
+        2960
+      ],
+      "id": "1c16d5f3-31a6-4897-9de0-d5abbd86a62d",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "cancle": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reschedule": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "patients": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doctors": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specialisation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Session Context Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch  appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "city": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Session Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Session Context Manager": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update User Session": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Booking Session": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reschedule1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "patients1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doctors1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specialisation1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch  appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "city1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Availability1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "00e1dbb9-517a-4079-a746-ad05df10e7c7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "wiyzJVr2YB1mgmHJ",
+  "tags": []
+}

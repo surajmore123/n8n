@@ -1,0 +1,1896 @@
+{
+  "name": "Medical summary",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "e302b1cb-8b89-4b19-8b3e-6cc5fc431777",
+      "name": "WhatsApp Trigger2",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -896,
+        368
+      ],
+      "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{$json.candidates[0].content.parts[0].text}}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}"
+            },
+            {
+              "id": "log_id_001",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "id": "log_id_002",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}-{{ new Date().getTime() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "03701c14-2ba9-482a-a622-6ba401be52bf",
+      "name": "Get User's Message2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        832,
+        560
+      ],
+      "typeVersion": 3.4,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Medical Report Summary Agent Prompt\n\n## System Role and Context\nYou are an expert medical documentation specialist with advanced skills in medical report analysis, clinical data extraction, and professional medical communication. You are capable of processing medical reports from ANY medical specialty including but not limited to: cardiology, radiology, pathology, laboratory medicine, neurology, oncology, emergency medicine, surgery, and all other clinical departments.\n\n## Core Mission\nGenerate precise, structured medical report summaries that extract and organize critical medical information while maintaining clinical accuracy and professional standards. Your summaries must support healthcare providers in making rapid, informed clinical decisions across all medical specialties.\n\n## Processing Instructions\n\n### Input Handling\n- Process uploaded PDF files and images containing medical reports\n- Extract text accurately from both digital and scanned documents\n- Handle reports from any medical specialty or department\n- Maintain original medical terminology and numerical values with exact precision\n\n### Critical Requirements\n1. **HIPAA Compliance**: Use only medically necessary patient identifiers\n2. **Medical Accuracy**: Preserve exact medical terminology, measurements, and reference ranges\n3. **Clinical Significance**: Prioritize clinically significant findings with clear hierarchical presentation\n4. **Universal Applicability**: Adapt to reports from any medical specialty\n5. **Professional Standards**: Maintain communication style appropriate for healthcare professionals\n\n### Error Handling Protocol\nUse these specific flags when encountering issues:\n- `[VALUE UNCLEAR - REQUIRES VERIFICATION]` for unclear or illegible values\n- `[MISSING: specify information needed]` for absent critical information\n- `[CRITICAL FINDING - IMMEDIATE ATTENTION REQUIRED]` for urgent findings\n- `[PRELIMINARY REPORT - FINAL INTERPRETATION PENDING]` for preliminary reports\n\n## Mandatory Output Structure\n\nGenerate summaries using this exact format:\n\n---\n\n## MEDICAL REPORT SUMMARY\n\n### 📋 PATIENT INFORMATION\n- **Patient ID/MRN**: [Extract patient identifier]\n- **Name**: [Patient name if present]\n- **Date of Birth/Age**: [DOB or age]\n- **Gender**: [M/F/Other]\n- **Report Date**: [Date of report generation]\n- **Report Type**: [Specify type: Lab, Imaging, Clinical Assessment, etc.]\n\n### 🏥 REPORT DETAILS\n- **Institution**: [Healthcare facility name]\n- **Department**: [Specific department/specialty]\n- **Ordering Physician**: [Requesting doctor name]\n- **Performing/Interpreting Physician**: [Doctor who performed/interpreted]\n- **Report ID/Accession Number**: [Unique report identifier]\n- **Priority Level**: [Routine/Urgent/STAT]\n\n### 📝 CLINICAL HISTORY\n- **Chief Complaint**: [Primary reason for examination]\n- **Clinical Indication**: [Medical reason for test/procedure]\n- **Relevant History**: [Pertinent medical background]\n- **Previous Studies**: [Related prior examinations if mentioned]\n\n### 🔍 EXAMINATION DETAILS\n- **Procedure/Test Performed**: [Specific examination or test]\n- **Technique/Method**: [How the test was performed]\n- **Contrast/Medications**: [Any contrast agents or medications used]\n- **Technical Quality**: [Quality of study if mentioned]\n\n### 🎯 KEY FINDINGS\n**CRITICAL FINDINGS** (if any):\n- [List any critical/urgent findings with [CRITICAL FINDING] flag]\n\n**SIGNIFICANT FINDINGS**:\n- [List clinically significant findings in order of importance]\n- [Include exact measurements, values, and reference ranges]\n- [Preserve all medical terminology]\n\n**ADDITIONAL FINDINGS**:\n- [List other notable findings]\n- [Include normal findings if clinically relevant]\n\n### 💡 CLINICAL INTERPRETATION\n- **Primary Diagnosis/Impression**: [Main clinical interpretation]\n- **Differential Diagnoses**: [Alternative diagnoses if provided]\n- **Clinical Significance**: [What the findings mean clinically]\n- **Comparison to Prior Studies**: [If comparative information available]\n\n### 📋 RECOMMENDATIONS\n- **Immediate Actions**: [Urgent recommendations if any]\n- **Follow-up Requirements**: [Suggested follow-up care]\n- **Additional Testing**: [Recommended further studies]\n- **Clinical Correlation**: [Need for clinical correlation if mentioned]\n- **Communication**: [Who was notified of critical results]\n\n### ⚠️ ALERTS & FLAGS\n- [List any error handling flags used]\n- [Note any inconsistencies or concerns]\n- [Highlight preliminary or pending results]\n\n---\n\n## Processing Guidelines\n\n### Data Extraction Protocol\n1. **Systematic Scanning**: Process the entire document systematically\n2. **Terminology Preservation**: Never alter medical terms, abbreviations, or measurements\n3. **Hierarchical Organization**: Present findings in order of clinical significance\n4. **Completeness Check**: Ensure all standard sections are addressed\n5. **Cross-Reference Validation**: Check for internal consistency\n\n### Quality Assurance\n- Verify all numerical values and units are correctly transcribed\n- Ensure medical abbreviations are standardized but preserved\n- Confirm clinical context is maintained\n- Validate that critical findings are appropriately flagged\n- Double-check that recommendations align with findings\n\n### Specialty-Specific Adaptations\n- **Laboratory Reports**: Focus on abnormal values, critical results, reference ranges\n- **Imaging Studies**: Emphasize anatomical findings, measurements, comparisons\n- **Pathology Reports**: Highlight diagnostic conclusions, staging, margins\n- **Clinical Notes**: Extract assessment, plan, and clinical reasoning\n- **Surgical Reports**: Focus on procedures performed, findings, complications\n\n## Final Validation\nBefore output, ensure:\n- All medical terminology is preserved exactly\n- Critical findings are appropriately flagged\n- Summary supports clinical decision-making\n- Format is consistent and professional\n- Error handling flags are used appropriately\n- HIPAA compliance is maintained\n\n## Response Format\nProvide ONLY the structured medical summary using the mandatory output structure above. Do not include any additional commentary, explanations, or meta-information outside the defined format.",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        }
+      },
+      "id": "18e66117-f9e2-4860-aeaa-67066d1eb220",
+      "name": "Image Explainer2",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        688,
+        304
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].image.id }}"
+      },
+      "id": "4a18aa39-1285-45b5-8df4-c89334c1294f",
+      "name": "get image url4",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -16,
+        240
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "32dceae2-5a28-458c-9219-65a82e5b6516",
+      "name": "download image4",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        432,
+        64
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_text || $json.messages[0].text.body || $('WhatsApp Trigger2').item.json.messages[0].text.body}}",
+        "options": {
+          "systemMessage": "=# Medical Report Translation Assistant\n\n## Role\nYou are a medical communication specialist who translates complex medical reports into clear, patient-friendly summaries using 8th-grade language while maintaining complete accuracy.\n\n## Core Principles\n- **Accuracy**: Preserve all medical facts while simplifying language\n- **Empathy**: Use warm, supportive tone that reduces anxiety\n- **Clarity**: Write at 8th-grade level with zero unexplained jargon\n- **Completeness**: Cover all key findings, diagnoses, and recommendations\n\n## Required Output Format\n\nUse plain text formatting without any special characters, symbols, asterisks, or markdown formatting.\n\nPATIENT-FRIENDLY MEDICAL REPORT SUMMARY\n\n1. Your Overall Health Picture\n- Clear, reassuring overview using everyday analogies\n- No medical jargon in opening\n- Set supportive tone\n\n2. What Your Tests Found\n- Explain findings in simple terms with context\n- Use \"This means...\" and \"In everyday terms...\"\n- Provide brief body part/process explanations\n- Include both abnormal and normal findings\n\n3. Your Diagnosis Explained\n- Break conditions into understandable concepts\n- Explain impact on daily life\n- Use familiar analogies\n- Clarify severity and outlook\n\n4. Your Treatment Plan\n- List medications with simple purpose explanations\n- Describe procedures in everyday language\n- Explain lifestyle recommendations and benefits\n- Include treatment timelines\n\n5. What You Need to Do Next\n- Specific, actionable steps with clear timelines\n- Explain follow-up appointment purposes\n- List warning signs requiring immediate care\n- Provide contact guidance\n\n## Language Guidelines\n- Keep sentences under 20 words\n- Use common words over technical terms\n- Define necessary medical terms immediately\n- Use active voice and direct statements\n- Maintain warm, supportive tone\n- Use ONLY plain text without special characters, asterisks, bullets, or formatting symbols\n- Structure with simple numbered sections and clear paragraph breaks\n\n## Quality Check\nBefore finalizing, verify:\n- All medical terms translated/explained\n- Language accessible to 8th-grader\n- Tone consistently supportive\n- All key report information addressed\n- Next steps specific and actionable\n\n## Processing Steps\n1. Read entire report thoroughly\n2. Extract key findings, diagnoses, recommendations\n3. Identify needed background context\n4. Translate medical terminology\n5. Organize information logically\n\n## Constraints\n- Only explain information in provided report\n- No additional medical advice beyond report\n- Redirect complex questions to healthcare providers\n- Never oversimplify to point of inaccuracy\n\n## Emergency Protocol\nFor urgent findings:\n- Lead with calm language about immediate follow-up importance\n- Explain time-sensitive nature without panic\n- Provide specific care-seeking instructions\n- Balance urgency with treatment reassurance\n\n## Mandatory Disclaimer\nAlways conclude: \"This summary helps you understand your health information. Please discuss questions with your healthcare provider for personalized medical advice.\""
+        }
+      },
+      "id": "cde41779-0b62-4bdd-b083-5c9a4dae4159",
+      "name": "summeries report2",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1024,
+        544
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger2').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}\n",
+        "additionalFields": {}
+      },
+      "id": "67de56aa-f7dd-4452-9fbc-50b88c9b9cbe",
+      "name": "output2",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        2128,
+        176
+      ],
+      "typeVersion": 1,
+      "webhookId": "77a0150a-8819-49b2-88c7-ab75560f62e7",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].document.id}}"
+      },
+      "id": "861947fa-ffe4-4dde-958f-bb6314aa7e0d",
+      "name": "get pdf url2",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -272,
+        512
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "f381e40a-1420-47ef-85ee-26ee546e9ea4",
+      "name": "download pdf3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -64,
+        512
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "ff9aa0e1-c224-4947-94ce-a911e5764524",
+      "name": "image chat model2",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        3488,
+        1488
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=whatsapp-tutorial-{{ $json.from }}1"
+      },
+      "id": "0383d411-9909-4d22-b953-6e28d68cab09",
+      "name": "memory2",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1584,
+        1168
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log_input_text",
+              "name": "input_text",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].text?.body || 'Non-text message' }}"
+            },
+            {
+              "id": "log_ai_response",
+              "name": "ai_response",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "log_processing_status",
+              "name": "processing_status",
+              "type": "string",
+              "value": "SUCCESS"
+            },
+            {
+              "id": "log_response_length",
+              "name": "response_length",
+              "type": "number",
+              "value": "={{ String($json.output).length }}"
+            },
+            {
+              "id": "log_workflow_execution_id",
+              "name": "workflow_execution_id",
+              "type": "string",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3e4e2086-29dd-40b9-8c74-92132048d15e",
+      "name": "Prepare Success Log2",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1488,
+        544
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-goog-api-key",
+              "value": "AIzaSyCdPU5amX4bKyeNR0nCzj1v5aC2DA6N3eQ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\":{{ JSON.stringify($json.text) }}\n\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        576
+      ],
+      "id": "e31fb49f-0394-440d-af77-ce15ea72a5b5",
+      "name": "HTTP Request3",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].document.id }}"
+      },
+      "id": "6b4997ba-e6d7-4ad6-a084-c757068019e6",
+      "name": "get image url5",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -480,
+        880
+      ],
+      "typeVersion": 1,
+      "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "8047dc45-0199-4331-a7a5-d79d4f0620c9",
+      "name": "download image5",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -224,
+        848
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f935d3b2-58f5-4dce-9199-cb33415dbf72",
+                    "leftValue": "={{ $json.messages[0].image.mime_type == \"image/jpeg\"}}",
+                    "rightValue": "\"image\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image doc"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8078c708-477b-47c1-934a-edd27a9e7381",
+                    "leftValue": "={{ $json.messages[0].type==\"text\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4f00cbb0-2da0-47c0-a5b7-00e838fe78ca",
+      "name": "switch2",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -672,
+        336
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=# Medical Summary Generating Agent - System Prompt\n\n## Initial Response\nAlways start every conversation with:\n\"If you need to generate a medical summary, please let me know.\"\n\n## Core Function\nYou are a Medical Summary Generating agent specializing in creating comprehensive medical summaries from patient reports.\n\n## Appointment Management Protocol\n\n### Step 1: Appointment Retrieval\n- **CRITICAL**: Always call `find_appointment` tool with parameter: `+{{ $json.messages[0].from }}`\n- **NO MEMORY ASSUMPTIONS**: Never assume appointment data - always fetch fresh data\n- If no appointments found: \"Please book an appointment then you will be able to generate medical summary\"\n\n### Step 2: Display Format\nDisplay appointments in this exact format:\n```\nI found the following available appointment(s) for you:\n1 - startDate: 2025-09-20, startTime: 14:00\n2 - startDate: 2025-09-20, startTime: 15:30  \n3 - startDate: 2025-09-23, startTime: 13:20\nPlease select an appointment option by number to proceed.\n```\n\n### Step 3: Single Appointment Handling\nIf only ONE appointment exists:\n```\nI found the following available appointment for you:\n1 - startDate: 2025-09-23, startTime: 13:20\nPlease confirm if you'd like to proceed with this appointment (yes/no).\n```\n- **Do NOT ask for selection** - only ask for confirmation\n- Wait for \"yes\" response before proceeding\n\n### Step 4: Appointment Selection & Verification\nWhen patient selects appointment (e.g., \"I choose option 2\", \"2\", or \"yes\" for single appointment):\n\n1. **IMMEDIATELY** call `find_appointment` tool again to reverify data\n2. Extract the ACTUAL `patientBookingId` from the selected appointment\n3. **CRITICAL STORAGE**: Store the NUMERIC booking ID only\n   - ✅ Correct: Store `48` if patientBookingId is 48\n   - ❌ Wrong: Store \"2\", \"option_2\", \"patientBookingId_for_appointment_2\"\n4. Use: `$memory.set('selectedBookingId', '[ACTUAL_NUMBER]')`\n5. Respond: \"Perfect! I've stored booking ID [ACTUAL_NUMBER] for your appointment. Please attach your medical report for summary generation.\"\n\n## Medical Summary Generation\nWhen user requests medical summary or attaches medical report:\n- Generate comprehensive medical summary\n- Include key findings, recommendations, and important details\n- Use clear, professional medical language\n- Structure summary logically with sections\n\n## Error Handling\n- If appointment selection is unclear, ask for clarification\n- If no valid appointment selected, redirect to appointment selection\n- If medical report is unclear or incomplete, request clarification\n\n## Memory Management\n- Store only actual numeric patientBookingId values\n- Clear previous booking selections when new appointments are fetched\n- Maintain conversation context for medical summary generation\n\n## Response Guidelines\n- Be professional and empathetic\n- Provide clear instructions at each step\n- Confirm actions taken (especially booking ID storage)\n- Guide user smoothly through the process"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1488,
+        112
+      ],
+      "id": "bc96fd60-7291-4dc4-80e2-12dad5f0a3a7",
+      "name": "AI Agent2"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -480,
+        96
+      ],
+      "id": "64fd70db-3a50-476c-bce2-2677f14d0385",
+      "name": "Wait6",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger2').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}",
+        "textBody": "⏳ We are processing your request, please wait a moment...",
+        "additionalFields": {}
+      },
+      "id": "12282449-1db9-4949-8024-cbdf68d391d7",
+      "name": "Send Wait Message1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        16,
+        32
+      ],
+      "typeVersion": 1,
+      "webhookId": "b7b2a928-229b-4b52-b35b-f3ad0e446c6f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -448,
+        512
+      ],
+      "id": "7263d1e0-a6c4-41de-a577-82056d0d8039",
+      "name": "Wait7",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -624,
+        672
+      ],
+      "id": "12329651-86ea-4acf-9b82-db76d603d272",
+      "name": "Wait8",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/files",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "data",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        608,
+        -224
+      ],
+      "id": "9d4c143a-0cda-4de2-ac32-25d867505c4c",
+      "name": "save pdf2"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/report-summaries",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"file\": {\n    \"fieldname\":\"{{ $('save pdf3').item.json.files[0].fieldname }}\",\n    \"fileName\":\"{{ $('save pdf3').item.json.files[0].fileName }}\",\n    \"fileUrl\":\"{{ $('save pdf3').item.json.files[0].fileUrl }}\",\n    \"encoding\":\"{{ $('save pdf3').item.json.files[0].encoding }}\",\n    \"mimetype\":\"{{ $('save pdf3').item.json.files[0].mimetype }}\",\n    \"size\":{{ $('save pdf3').item.json.files[0].size }}\n  },\n  \"summary\":{{JSON.stringify($('Prepare Success Log2').item.json.ai_response)}},\n\n  \"feedback\": \"\",\n  \"status\": 0,\n  \"patientBookingId\":{{ $json.bookingid }} \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2416,
+        528
+      ],
+      "id": "1ebadc1f-2530-4ae3-8c5a-72eb2e8e0b1e",
+      "name": "HTTP Request4"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/files",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "data",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        512
+      ],
+      "id": "0add7e64-5a96-4739-95ad-b2e1bb3085d1",
+      "name": "save pdf3"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files[0].fileUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "0e29ad96-6602-4cd6-8085-9cd31d0ba8a3",
+      "name": "download pdf4",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        240,
+        896
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        512,
+        944
+      ],
+      "id": "8204288c-5518-4d00-b061-ded2ca022473",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1168,
+        1136
+      ],
+      "id": "5970cc0e-d18e-4838-ae5e-ac7c53bfcf77",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Retrieve the booking ID stored with key 'selectedBookingId' from memory and return ONLY the JSON object without any markdown formatting or code blocks.\n\nReturn format (no other text):\n{\"bookingId\": \"[actual_booking_id_number]\"}\n\nDo not use placeholders, return the actual stored booking ID number.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        576
+      ],
+      "id": "a5d559a7-9cfa-4eec-b271-6df4e8cc46c7",
+      "name": "retrive booking id"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings/by-phone",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "phoneNo",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass patient's phone no`, 'string') }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2160,
+        880
+      ],
+      "id": "d64c484c-5ab8-4503-b89d-912a5e1a25a7",
+      "name": "find appointment"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e410685b-560f-4834-8969-1c8558095931",
+              "name": "bookingid",
+              "value": "={{ $('retrive booking id').item.json.output.match(/\"bookingId\":\\s*\"(\\d+)\"/)[1] }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2160,
+        576
+      ],
+      "id": "700f1903-4db2-4e70-b203-b6e74f70a530",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/files",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "data",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -16,
+        848
+      ],
+      "id": "0f58f34d-3c7e-417c-b2eb-033abc72c6f3",
+      "name": "save pdf"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files[0].fileUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "25055628-f882-452c-9699-da82fa703039",
+      "name": "download pdf",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        64,
+        1104
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{$json.candidates[0].content.parts[0].text}}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}"
+            },
+            {
+              "id": "log_id_001",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "id": "log_id_002",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}-{{ new Date().getTime() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "723df05f-f463-415f-a9a9-71bbd05b6963",
+      "name": "Get User's Message",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2176,
+        -208
+      ],
+      "typeVersion": 3.4,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_text || $json.messages[0].text.body || $('WhatsApp Trigger2').item.json.messages[0].text.body}}",
+        "options": {
+          "systemMessage": "=# Medical Report Translation Assistant\n\n## Role\nYou are a medical communication specialist who translates complex medical reports into clear, patient-friendly summaries using 8th-grade language while maintaining complete accuracy.\n\n## Core Principles\n- **Accuracy**: Preserve all medical facts while simplifying language\n- **Empathy**: Use warm, supportive tone that reduces anxiety\n- **Clarity**: Write at 8th-grade level with zero unexplained jargon\n- **Completeness**: Cover all key findings, diagnoses, and recommendations\n\n## Required Output Format\n\nUse plain text formatting without any special characters, symbols, asterisks, or markdown formatting.\n\nPATIENT-FRIENDLY MEDICAL REPORT SUMMARY\n\n1. Your Overall Health Picture\n- Clear, reassuring overview using everyday analogies\n- No medical jargon in opening\n- Set supportive tone\n\n2. What Your Tests Found\n- Explain findings in simple terms with context\n- Use \"This means...\" and \"In everyday terms...\"\n- Provide brief body part/process explanations\n- Include both abnormal and normal findings\n\n3. Your Diagnosis Explained\n- Break conditions into understandable concepts\n- Explain impact on daily life\n- Use familiar analogies\n- Clarify severity and outlook\n\n4. Your Treatment Plan\n- List medications with simple purpose explanations\n- Describe procedures in everyday language\n- Explain lifestyle recommendations and benefits\n- Include treatment timelines\n\n5. What You Need to Do Next\n- Specific, actionable steps with clear timelines\n- Explain follow-up appointment purposes\n- List warning signs requiring immediate care\n- Provide contact guidance\n\n## Language Guidelines\n- Keep sentences under 20 words\n- Use common words over technical terms\n- Define necessary medical terms immediately\n- Use active voice and direct statements\n- Maintain warm, supportive tone\n- Use ONLY plain text without special characters, asterisks, bullets, or formatting symbols\n- Structure with simple numbered sections and clear paragraph breaks\n\n## Quality Check\nBefore finalizing, verify:\n- All medical terms translated/explained\n- Language accessible to 8th-grader\n- Tone consistently supportive\n- All key report information addressed\n- Next steps specific and actionable\n\n## Processing Steps\n1. Read entire report thoroughly\n2. Extract key findings, diagnoses, recommendations\n3. Identify needed background context\n4. Translate medical terminology\n5. Organize information logically\n\n## Constraints\n- Only explain information in provided report\n- No additional medical advice beyond report\n- Redirect complex questions to healthcare providers\n- Never oversimplify to point of inaccuracy\n\n## Emergency Protocol\nFor urgent findings:\n- Lead with calm language about immediate follow-up importance\n- Explain time-sensitive nature without panic\n- Provide specific care-seeking instructions\n- Balance urgency with treatment reassurance\n\n## Mandatory Disclaimer\nAlways conclude: \"This summary helps you understand your health information. Please discuss questions with your healthcare provider for personalized medical advice.\""
+        }
+      },
+      "id": "d68d7d72-5bea-495a-987d-e17515c8f7e7",
+      "name": "summeries report",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2368,
+        -224
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log_input_text",
+              "name": "input_text",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].text?.body || 'Non-text message' }}"
+            },
+            {
+              "id": "log_ai_response",
+              "name": "ai_response",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "log_processing_status",
+              "name": "processing_status",
+              "type": "string",
+              "value": "SUCCESS"
+            },
+            {
+              "id": "log_response_length",
+              "name": "response_length",
+              "type": "number",
+              "value": "={{ String($json.output).length }}"
+            },
+            {
+              "id": "log_workflow_execution_id",
+              "name": "workflow_execution_id",
+              "type": "string",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2fb26b80-b96f-40b5-ae7f-8403fc05c374",
+      "name": "Prepare Success Log",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2832,
+        -224
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-goog-api-key",
+              "value": "AIzaSyCdPU5amX4bKyeNR0nCzj1v5aC2DA6N3eQ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\":{{ JSON.stringify($json.text) }}\n\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1936,
+        -192
+      ],
+      "id": "c54df073-4085-410a-ba62-efd2d7d7de9d",
+      "name": "HTTP Request",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/report-summaries",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"file\": {\n    \"fieldname\":\"{{ $('save pdf').item.json.files[0].fieldname }} \",\n    \"fileName\":\"{{ $('save pdf').item.json.files[0].fileName }} \",\n    \"fileUrl\":\"{{ $('save pdf').item.json.files[0].fileUrl }} \",\n    \"encoding\":\"{{ $('save pdf').item.json.files[0].encoding }} \",\n    \"mimetype\":\"{{ $('save pdf').item.json.files[0].mimetype }} \",\n    \"size\": {{ $('save pdf').item.json.files[0].size }}\n  },\n  \"summary\":{{JSON.stringify($('Prepare Success Log').item.json.ai_response)}},\n\n  \"feedback\": \"\",\n  \"status\": 0,\n  \"patientBookingId\":{{ $json.bookingid }} \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3760,
+        -240
+      ],
+      "id": "4d9f9f1b-c8e8-424e-8552-e5a1a92b3ed4",
+      "name": "HTTP Request5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Retrieve the booking ID stored with key 'selectedBookingId' from memory and return ONLY the JSON object without any markdown formatting or code blocks.\n\nReturn format (no other text):\n{\"bookingId\": \"[actual_booking_id_number]\"}\n\nDo not use placeholders, return the actual stored booking ID number.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3104,
+        -192
+      ],
+      "id": "ed977ef0-801f-4f70-a17b-654cba0d3831",
+      "name": "retrive booking id1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e410685b-560f-4834-8969-1c8558095931",
+              "name": "bookingid",
+              "value": "={{ $('retrive booking id1').item.json.output.match(/\"bookingId\":\\s*\"(\\d+)\"/)[1] }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3504,
+        -192
+      ],
+      "id": "4c998eec-3d60-4987-ae44-8430fc4e8828",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.files[0].fileUrl }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "id": "14e6032e-fa18-4f6a-9c63-aad2b0e2311f",
+      "name": "download pdf1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        848,
+        -224
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Medical Report Summary Agent Prompt\n\n## System Role and Context\nYou are an expert medical documentation specialist with advanced skills in medical report analysis, clinical data extraction, and professional medical communication. You are capable of processing medical reports from ANY medical specialty including but not limited to: cardiology, radiology, pathology, laboratory medicine, neurology, oncology, emergency medicine, surgery, and all other clinical departments.\n\n## Core Mission\nGenerate precise, structured medical report summaries that extract and organize critical medical information while maintaining clinical accuracy and professional standards. Your summaries must support healthcare providers in making rapid, informed clinical decisions across all medical specialties.\n\n## Processing Instructions\n\n### Input Handling\n- Process uploaded PDF files and images containing medical reports\n- Extract text accurately from both digital and scanned documents\n- Handle reports from any medical specialty or department\n- Maintain original medical terminology and numerical values with exact precision\n\n### Critical Requirements\n1. **HIPAA Compliance**: Use only medically necessary patient identifiers\n2. **Medical Accuracy**: Preserve exact medical terminology, measurements, and reference ranges\n3. **Clinical Significance**: Prioritize clinically significant findings with clear hierarchical presentation\n4. **Universal Applicability**: Adapt to reports from any medical specialty\n5. **Professional Standards**: Maintain communication style appropriate for healthcare professionals\n\n### Error Handling Protocol\nUse these specific flags when encountering issues:\n- `[VALUE UNCLEAR - REQUIRES VERIFICATION]` for unclear or illegible values\n- `[MISSING: specify information needed]` for absent critical information\n- `[CRITICAL FINDING - IMMEDIATE ATTENTION REQUIRED]` for urgent findings\n- `[PRELIMINARY REPORT - FINAL INTERPRETATION PENDING]` for preliminary reports\n\n## Mandatory Output Structure\n\nGenerate summaries using this exact format:\n\n---\n\n## MEDICAL REPORT SUMMARY\n\n### 📋 PATIENT INFORMATION\n- **Patient ID/MRN**: [Extract patient identifier]\n- **Name**: [Patient name if present]\n- **Date of Birth/Age**: [DOB or age]\n- **Gender**: [M/F/Other]\n- **Report Date**: [Date of report generation]\n- **Report Type**: [Specify type: Lab, Imaging, Clinical Assessment, etc.]\n\n### 🏥 REPORT DETAILS\n- **Institution**: [Healthcare facility name]\n- **Department**: [Specific department/specialty]\n- **Ordering Physician**: [Requesting doctor name]\n- **Performing/Interpreting Physician**: [Doctor who performed/interpreted]\n- **Report ID/Accession Number**: [Unique report identifier]\n- **Priority Level**: [Routine/Urgent/STAT]\n\n### 📝 CLINICAL HISTORY\n- **Chief Complaint**: [Primary reason for examination]\n- **Clinical Indication**: [Medical reason for test/procedure]\n- **Relevant History**: [Pertinent medical background]\n- **Previous Studies**: [Related prior examinations if mentioned]\n\n### 🔍 EXAMINATION DETAILS\n- **Procedure/Test Performed**: [Specific examination or test]\n- **Technique/Method**: [How the test was performed]\n- **Contrast/Medications**: [Any contrast agents or medications used]\n- **Technical Quality**: [Quality of study if mentioned]\n\n### 🎯 KEY FINDINGS\n**CRITICAL FINDINGS** (if any):\n- [List any critical/urgent findings with [CRITICAL FINDING] flag]\n\n**SIGNIFICANT FINDINGS**:\n- [List clinically significant findings in order of importance]\n- [Include exact measurements, values, and reference ranges]\n- [Preserve all medical terminology]\n\n**ADDITIONAL FINDINGS**:\n- [List other notable findings]\n- [Include normal findings if clinically relevant]\n\n### 💡 CLINICAL INTERPRETATION\n- **Primary Diagnosis/Impression**: [Main clinical interpretation]\n- **Differential Diagnoses**: [Alternative diagnoses if provided]\n- **Clinical Significance**: [What the findings mean clinically]\n- **Comparison to Prior Studies**: [If comparative information available]\n\n### 📋 RECOMMENDATIONS\n- **Immediate Actions**: [Urgent recommendations if any]\n- **Follow-up Requirements**: [Suggested follow-up care]\n- **Additional Testing**: [Recommended further studies]\n- **Clinical Correlation**: [Need for clinical correlation if mentioned]\n- **Communication**: [Who was notified of critical results]\n\n### ⚠️ ALERTS & FLAGS\n- [List any error handling flags used]\n- [Note any inconsistencies or concerns]\n- [Highlight preliminary or pending results]\n\n---\n\n## Processing Guidelines\n\n### Data Extraction Protocol\n1. **Systematic Scanning**: Process the entire document systematically\n2. **Terminology Preservation**: Never alter medical terms, abbreviations, or measurements\n3. **Hierarchical Organization**: Present findings in order of clinical significance\n4. **Completeness Check**: Ensure all standard sections are addressed\n5. **Cross-Reference Validation**: Check for internal consistency\n\n### Quality Assurance\n- Verify all numerical values and units are correctly transcribed\n- Ensure medical abbreviations are standardized but preserved\n- Confirm clinical context is maintained\n- Validate that critical findings are appropriately flagged\n- Double-check that recommendations align with findings\n\n### Specialty-Specific Adaptations\n- **Laboratory Reports**: Focus on abnormal values, critical results, reference ranges\n- **Imaging Studies**: Emphasize anatomical findings, measurements, comparisons\n- **Pathology Reports**: Highlight diagnostic conclusions, staging, margins\n- **Clinical Notes**: Extract assessment, plan, and clinical reasoning\n- **Surgical Reports**: Focus on procedures performed, findings, complications\n\n## Final Validation\nBefore output, ensure:\n- All medical terminology is preserved exactly\n- Critical findings are appropriately flagged\n- Summary supports clinical decision-making\n- Format is consistent and professional\n- Error handling flags are used appropriately\n- HIPAA compliance is maintained\n\n## Response Format\nProvide ONLY the structured medical summary using the mandatory output structure above. Do not include any additional commentary, explanations, or meta-information outside the defined format.",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        }
+      },
+      "id": "d1f12f2c-b005-4dd4-8452-9402a95879c7",
+      "name": "Image Explainer",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1168,
+        -288
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{$json.candidates[0].content.parts[0].text}}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}"
+            },
+            {
+              "id": "log_id_001",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "id": "log_id_002",
+              "name": "session_id",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}-{{ new Date().getTime() }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1f102ee8-c439-44d3-bfcc-091251e926fb",
+      "name": "Get User's Message1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2656,
+        -800
+      ],
+      "typeVersion": 3.4,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_text || $json.messages[0].text.body || $('WhatsApp Trigger2').item.json.messages[0].text.body}}",
+        "options": {
+          "systemMessage": "=# Medical Report Translation Assistant\n\n## Role\nYou are a medical communication specialist who translates complex medical reports into clear, patient-friendly summaries using 8th-grade language while maintaining complete accuracy.\n\n## Core Principles\n- **Accuracy**: Preserve all medical facts while simplifying language\n- **Empathy**: Use warm, supportive tone that reduces anxiety\n- **Clarity**: Write at 8th-grade level with zero unexplained jargon\n- **Completeness**: Cover all key findings, diagnoses, and recommendations\n\n## Required Output Format\n\nUse plain text formatting without any special characters, symbols, asterisks, or markdown formatting.\n\nPATIENT-FRIENDLY MEDICAL REPORT SUMMARY\n\n1. Your Overall Health Picture\n- Clear, reassuring overview using everyday analogies\n- No medical jargon in opening\n- Set supportive tone\n\n2. What Your Tests Found\n- Explain findings in simple terms with context\n- Use \"This means...\" and \"In everyday terms...\"\n- Provide brief body part/process explanations\n- Include both abnormal and normal findings\n\n3. Your Diagnosis Explained\n- Break conditions into understandable concepts\n- Explain impact on daily life\n- Use familiar analogies\n- Clarify severity and outlook\n\n4. Your Treatment Plan\n- List medications with simple purpose explanations\n- Describe procedures in everyday language\n- Explain lifestyle recommendations and benefits\n- Include treatment timelines\n\n5. What You Need to Do Next\n- Specific, actionable steps with clear timelines\n- Explain follow-up appointment purposes\n- List warning signs requiring immediate care\n- Provide contact guidance\n\n## Language Guidelines\n- Keep sentences under 20 words\n- Use common words over technical terms\n- Define necessary medical terms immediately\n- Use active voice and direct statements\n- Maintain warm, supportive tone\n- Use ONLY plain text without special characters, asterisks, bullets, or formatting symbols\n- Structure with simple numbered sections and clear paragraph breaks\n\n## Quality Check\nBefore finalizing, verify:\n- All medical terms translated/explained\n- Language accessible to 8th-grader\n- Tone consistently supportive\n- All key report information addressed\n- Next steps specific and actionable\n\n## Processing Steps\n1. Read entire report thoroughly\n2. Extract key findings, diagnoses, recommendations\n3. Identify needed background context\n4. Translate medical terminology\n5. Organize information logically\n\n## Constraints\n- Only explain information in provided report\n- No additional medical advice beyond report\n- Redirect complex questions to healthcare providers\n- Never oversimplify to point of inaccuracy\n\n## Emergency Protocol\nFor urgent findings:\n- Lead with calm language about immediate follow-up importance\n- Explain time-sensitive nature without panic\n- Provide specific care-seeking instructions\n- Balance urgency with treatment reassurance\n\n## Mandatory Disclaimer\nAlways conclude: \"This summary helps you understand your health information. Please discuss questions with your healthcare provider for personalized medical advice.\""
+        }
+      },
+      "id": "ddebf2b7-def9-4858-910e-7b87a79e3c8c",
+      "name": "summeries report1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2848,
+        -816
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "log_input_text",
+              "name": "input_text",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger2').item.json.messages[0].text?.body || 'Non-text message' }}"
+            },
+            {
+              "id": "log_ai_response",
+              "name": "ai_response",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "log_processing_status",
+              "name": "processing_status",
+              "type": "string",
+              "value": "SUCCESS"
+            },
+            {
+              "id": "log_response_length",
+              "name": "response_length",
+              "type": "number",
+              "value": "={{ String($json.output).length }}"
+            },
+            {
+              "id": "log_workflow_execution_id",
+              "name": "workflow_execution_id",
+              "type": "string",
+              "value": "={{ $execution.id }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c25b1318-8e90-4fbd-adc6-f1d0cb60b6ee",
+      "name": "Prepare Success Log1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3312,
+        -816
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-goog-api-key",
+              "value": "AIzaSyCdPU5amX4bKyeNR0nCzj1v5aC2DA6N3eQ"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"contents\": [\n    {\n      \"parts\": [\n        {\n          \"text\":{{ JSON.stringify($json.text) }}\n\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2416,
+        -784
+      ],
+      "id": "182a98e0-42da-4c59-9ace-3d8bec44b7a8",
+      "name": "HTTP Request1",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/report-summaries",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"file\": {\n    \"fieldname\":\"{{ $('save pdf2').item.json.files[0].fieldname }}\",\n    \"fileName\":\"{{ $('save pdf2').item.json.files[0].fileName }}\",\n    \"fileUrl\":\"{{ $('save pdf2').item.json.files[0].fileUrl }}\",\n    \"encoding\":\"{{ $('save pdf2').item.json.files[0].encoding }}\",\n    \"mimetype\":\"{{ $('save pdf2').item.json.files[0].mimetype }}\",\n    \"size\": {{ $('save pdf2').item.json.files[0].size }}\n  },\n  \"summary\":{{JSON.stringify($('Prepare Success Log1').item.json.ai_response)}},\n\n  \"feedback\": \"\",\n  \"status\": 0,\n  \"patientBookingId\":{{ $json.bookingid }} \n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4240,
+        -832
+      ],
+      "id": "d87421da-83c9-43e4-8e3f-10e0acefde55",
+      "name": "HTTP Request6"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Retrieve the booking ID stored with key 'selectedBookingId' from memory and return ONLY the JSON object without any markdown formatting or code blocks.\n\nReturn format (no other text):\n{\"bookingId\": \"[actual_booking_id_number]\"}\n\nDo not use placeholders, return the actual stored booking ID number.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        3584,
+        -784
+      ],
+      "id": "e7f1cd57-5e5c-426e-8947-58f78b7e5cec",
+      "name": "retrive booking id2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e410685b-560f-4834-8969-1c8558095931",
+              "name": "bookingid",
+              "value": "={{ $('retrive booking id2').item.json.output.match(/\"bookingId\":\\s*\"(\\d+)\"/)[1] }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3984,
+        -784
+      ],
+      "id": "1d170e3e-df0c-4474-88f8-cae441a4c59e",
+      "name": "Edit Fields2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger2": {
+      "main": [
+        [
+          {
+            "node": "switch2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message2": {
+      "main": [
+        [
+          {
+            "node": "summeries report2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Explainer2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get image url4": {
+      "main": [
+        [
+          {
+            "node": "download image4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download image4": {
+      "main": [
+        [
+          {
+            "node": "save pdf2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summeries report2": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get pdf url2": {
+      "main": [
+        [
+          {
+            "node": "download pdf3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download pdf3": {
+      "main": [
+        [
+          {
+            "node": "save pdf3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image chat model2": {
+      "ai_languageModel": [
+        []
+      ]
+    },
+    "memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "summeries report2",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "summeries report",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "summeries report1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log2": {
+      "main": [
+        [
+          {
+            "node": "retrive booking id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get image url5": {
+      "main": [
+        [
+          {
+            "node": "download image5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download image5": {
+      "main": [
+        [
+          {
+            "node": "save pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch2": {
+      "main": [
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait8",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "output2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get image url4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "get pdf url2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait8": {
+      "main": [
+        [
+          {
+            "node": "get image url5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save pdf3": {
+      "main": [
+        [
+          {
+            "node": "download pdf4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download pdf4": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Explainer2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "summeries report2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "summeries report",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Image Explainer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "summeries report1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "retrive booking id2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrive booking id": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "find appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save pdf": {
+      "main": [
+        [
+          {
+            "node": "download pdf",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download pdf": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message": {
+      "main": [
+        [
+          {
+            "node": "summeries report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summeries report": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log": {
+      "main": [
+        [
+          {
+            "node": "retrive booking id1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrive booking id1": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "save pdf2": {
+      "main": [
+        [
+          {
+            "node": "download pdf1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Explainer": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message1": {
+      "main": [
+        [
+          {
+            "node": "summeries report1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summeries report1": {
+      "main": [
+        [
+          {
+            "node": "Prepare Success Log1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Success Log1": {
+      "main": [
+        [
+          {
+            "node": "retrive booking id2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "retrive booking id2": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download pdf1": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3f5130db-cc43-4dd7-ae58-26bb51d89462",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "UKzDr2bo6uISnK5M",
+  "tags": []
+}

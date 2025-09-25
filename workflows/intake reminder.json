@@ -1,0 +1,96 @@
+{
+  "name": "intake reminder",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "intake_reminder",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "48f3b9c6-0be8-41f9-88f8-63790686ffe0",
+      "name": "Webhook",
+      "webhookId": "9f5047ef-18bc-44cc-a4d8-6b2ba31b7510"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "722383954288560",
+        "recipientPhoneNumber": "={{ $json.body.phoneNo }}",
+        "textBody": "={{ $json.body.message }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        176,
+        0
+      ],
+      "id": "5927e4cb-1b54-4bd2-be70-1b9f79064e5c",
+      "name": "Send message",
+      "webhookId": "4510ff09-5e9c-46a9-a655-8c8aff9b4ee2",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "host": "unbonneted-sherley-nonabsolutely.ngrok-free.app",
+            "user-agent": "axios/1.11.0",
+            "content-length": "139",
+            "accept": "application/json, text/plain, */*",
+            "accept-encoding": "gzip, compress, deflate, br",
+            "content-type": "application/json",
+            "x-forwarded-for": "2401:4900:1c7e:655d:54e5:6574:1b24:206a",
+            "x-forwarded-host": "unbonneted-sherley-nonabsolutely.ngrok-free.app",
+            "x-forwarded-proto": "https"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "patientBookingId": 54,
+            "phoneNo": "+919067335882",
+            "message": "You haven't filled the personal intake detail, please fill the intake detail."
+          },
+          "webhookUrl": "https://unbonneted-sherley-nonabsolutely.ngrok-free.app/webhook/intake_reminder",
+          "executionMode": "production"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d9361852-7b08-42d1-a6cb-d23b2ed0bede",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "jEkpS96mGPjgubKs",
+  "tags": []
+}

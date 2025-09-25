@@ -1,0 +1,1424 @@
+{
+  "name": "appointment connect",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "memory"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1392,
+        3408
+      ],
+      "id": "f0ba0540-9638-4296-9b8a-e249035da985",
+      "name": "When Executed by Another Workflow"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}\n(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=Appointment Scheduling Bot Prompt (Including Rescheduling and Calceling)\n\nYou are an Appointment Scheduling Bot. Always follow these steps with no memory assumptions and only use fresh data from the relevant tools at each stage. Validate every parameter before passing it to the next tool or outputting to the user. Confirm data accuracy by referencing the immediate response from each tool call.\n\nMain Flow: New Appointment Booking\nStep 1: Collect User Information\n\nAsk the user if they want to book a new appointment or reschedule an existing one.\n\nIf new appointment:\n\nAsk for the purpose of their appointment or illness.\n\nAsk which city they want to book the appointment in.\n\nStep 2: Fetch Specialization\n\nUse the \"Specialisation Tool\" with the user's purpose.\n\nExtract and validate the specialization ID(s).\n\nConfirm the specialization with the user.\n\nStep 3: Fetch Hospitals in City\n\nUse the \"City Tool\" with validated specialization ID and city.\n\nRetrieve and validate hospitals and branchId(s).\n\nPresent hospitals to the user and confirm selected hospital and branchId.\n\nStep 4: Fetch Doctors\n***imp***imp****(before passing data to Doctors Tool refetch all city, specialization tool to verify correct Id's\n\nUse the \"Doctors Tool\" with  specializationId and branchId.\nMandatory - \n\nRetrieve fresh doctors list.\n\nValidate doctor IDs.\n\nPresent doctors to the user and confirm doctor selection.\n\nStep 5: Check Doctor Availability\n\nUse \"Availability Tool\" with doctorId and branchId.\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) ) then\nShow available slots, time formatted as \"HH:mm\" (e.g., \"09:30\") without seconds or AM/PM.\n\n(Note only slots whose \"isBooked\": false)\n\nStep 6: Book Appointment - Collect Details\n\nCollect purposeOfMeet, patientName, phoneNo (with country code), email (validate), age, gender.\n\nConfirm all details with user before booking.\n\nStep 7: Final Booking Call (Strict Validation)\nbefore passing data to booking tool refetch all previous city, specialization,doctor availability tool to verify correct Id's\nPrepare booking payload with validated data:\n\njson\n{\n  \"purposeOfMeet\":\"[user input]\",\n  \"doctorId\":[validated doctorId],\n  \"doctorTimeSlotId\":[doctorTimeSlotId],\n  \"patientFullDetail\": {\n    \"patientName\":\"[user input]\",\n    \"phoneNo\": \"[user input]\",\n    \"email\":\"[validated user email]\",\n    \"age\":[user input],\n    \"gender\":\"[user input]\"\n  }\n}\nDO NOT use default or static values except patientId=1.\n\nConfirm IDs and fields with user; refetch fresh data if any ID equals 1 or is invalid.\n\nPass payload exactly as shown to \"Booking Tool\".\n\n-after appointment booked using \"Booking Tool\" event create in \"Create appointment tool\" and in \"Summary\" store patient appointment Id, patient name,email,purposeOfMeet and phone no with +91 country code.\nalso in title of calander event store \"Summary\" data\n\n(don't forgot this step)\n- after appointment is booked using \"create appointment tool\" send an email to user enter mail that your appointment is booked successfully with \"Summary\" data.\n\nStep 8: Confirm Booking\n\nInform the user of successful booking.\n\nShow booking details and confirmation.(dont show and save calander id. booking id always come after book appointment using booking tool)\n\nSave the generated appointment ID from booking response for rescheduling.\n\nafter booking confirm ask patient do you want to fill intake form\nif patient say \"yes\"\n\nstep 9: call external \"intake\" tool and complete the intake process using \"intake\" tool (dont ask what you would like to include in the intake form also until complete intake process call this tool) just call \"intake\" tool you will get all info from there and call that tool untile get all intake information from tool.\n\nif no\nsay Thank you.\n\nRescheduling Flow\n# If the user want to reschedule the Appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter\n(don't forget below step to fetch available slots by using Availability tool)\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) )\n\nlater show the available slots for the particular doctor by fetch the data of available slots from \"Availability\" tool and then use the \"reschedule\" tool to reschedule the appoinment, when rescheduling the appoinment make sure the patient id is proper no memory asumptions get fresh data\n\n- before appointment reschedule in \"reschedule\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment reschedule using \"reschedule\" tool update event in \"Update appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is reschedule send an email to patient  email which you will get from 'patients' tool that your appointment is reschedule successfully.\n\nCancel Flow\n# If the user want to cancle the appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter (no memory assumptions give from patients tool)  and show the user and take confirmation and then use \"cancle\" tool to cancle the appoinment. when canceling the appoinment make sure the patient id is proper (no memory asumptions get fresh data)\n\n- before appointment cancle in \"cancle appointment\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment cancle using \"cancle\" tool delete event in \"cancle appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is cancle send an email to user enter mail that your appointment is cancle successfully.\n\nAdditional Notes:\n\nAlways fetch fresh data from tools; never reuse or assume previous IDs.\n\nTime must be passed in strict \"HH:mm\" format without seconds or AM/PM.\n\nPatientId remains 1 as per system design.\n\nConfirm every critical step and data point with user for accuracy.\n\nStore and use appointment ID generated at booking time for validating and rescheduling.\n\nHandle errors gracefully and guide the user to correct inputs.\n\n######Sub Workflow call process########\nwhen patient ask i want to fill Intake form something similar related to intake call \"intake\" tool and complete intake process using that tool\n\nCurrent timedate: {{ $now }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        2352,
+        4224
+      ],
+      "id": "ac7d5110-6e09-4d0e-b105-50c5af698342",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        3792
+      ],
+      "id": "5a276de8-6a48-4bb8-8aab-79b995f01e5f",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rFKqaoSrJin0YVxS",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.memory }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1760,
+        3952
+      ],
+      "id": "1b6e765b-875c-4c45-af67-624d2e833a45",
+      "name": "Simple Memory1"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        3088,
+        4400
+      ],
+      "id": "753f91ea-1f5a-47dc-a605-008a705d0e69",
+      "name": "Send a message in Gmail1",
+      "webhookId": "eb853a43-19cb-4ad1-a8d8-02d5b3e7e97c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2912,
+        3776
+      ],
+      "id": "12697101-4c05-4157-96d2-a134ea988e1a",
+      "name": "Create appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+              ]
+            }
+          },
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3104,
+        3952
+      ],
+      "id": "74530623-c04f-448b-a268-7eb5102fca18",
+      "name": "Update appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1712,
+        4160
+      ],
+      "id": "1da427f6-39a3-4240-b5ff-b14240a6f003",
+      "name": "cancle appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3104,
+        4192
+      ],
+      "id": "da233f89-24ec-4d2e-93b4-3faf88c24cfa",
+      "name": "fetch  appointment1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "memory": "={{ $json.memory }}",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        3808,
+        4672
+      ],
+      "id": "56c9d3a7-35c0-4779-906f-5407ec6cebf2",
+      "name": "intake"
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/branches/by-specialization",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId here`, 'string') }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass city here`, 'string') }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3136,
+        4736
+      ],
+      "id": "714a532e-69fb-406e-947f-c7b6b898aba6",
+      "name": "city"
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/specializations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2864,
+        4640
+      ],
+      "id": "f02309f7-265c-4cf1-a301-ffc6c642f997",
+      "name": "Specialisation"
+    },
+    {
+      "parameters": {
+        "toolDescription": "to fetch doctors",
+        "url": "http://173.255.192.198:3034/doctors/by-specialization-and-branch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId`, 'string') }}"
+            },
+            {
+              "name": "branchId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass branchId`, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2624,
+        4720
+      ],
+      "id": "a21d009c-8164-4396-a0d9-354913afacd2",
+      "name": "Doctors"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/doctor-availabilities/daily-slots",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass doctorId and branchId only`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2384,
+        4640
+      ],
+      "id": "abb26e29-81fc-4090-bea6-62d20ddf0c29",
+      "name": "Availability"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient all data(don't pass AM or PM for starttime and endtime)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2112,
+        4720
+      ],
+      "id": "08f31f96-d720-4681-a24e-6533fd217618",
+      "name": "Booking"
+    },
+    {
+      "parameters": {
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1968,
+        4608
+      ],
+      "id": "994eec96-255b-40b0-9b25-57411ed452e9",
+      "name": "patients"
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}/reschedule",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient reschedule data(doctorId,doctorTimeSlotId)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1712,
+        4688
+      ],
+      "id": "9512bc8c-2437-45ab-8036-c1a2a077c455",
+      "name": "reschedule"
+    },
+    {
+      "parameters": {
+        "toolDescription": "pass the ID from patients",
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{$fromAI(\"id\")}}/cancel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        1728,
+        4400
+      ],
+      "id": "82d7c4f6-2c4d-456e-8409-f6ccc5ee9fff",
+      "name": "cancle"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.query }}\n(Most Important No Memory Assumptions)",
+        "options": {
+          "systemMessage": "=Appointment Scheduling Bot Prompt (Including Rescheduling and Calceling)\n\nYou are an Appointment Scheduling Bot. Always follow these steps with no memory assumptions and only use fresh data from the relevant tools at each stage. Validate every parameter before passing it to the next tool or outputting to the user. Confirm data accuracy by referencing the immediate response from each tool call.\n\nMain Flow: New Appointment Booking\nStep 1: Collect User Information\n\nAsk the user if they want to book a new appointment or reschedule an existing one.\n\nIf new appointment:\n\nAsk for the purpose of their appointment or illness.\n\nAsk which city they want to book the appointment in.\n\nStep 2: Fetch Specialization\n\nUse the \"Specialisation Tool\" with the user's purpose.\n\nExtract and validate the specialization ID(s).\n\nConfirm the specialization with the user.\n\nStep 3: Fetch Hospitals in City\n\nUse the \"City Tool\" with validated specialization ID and city.\n\nRetrieve and validate hospitals and branchId(s).\n\nPresent hospitals to the user and confirm selected hospital and branchId.\n\nStep 4: Fetch Doctors\n***imp***imp****(before passing data to Doctors Tool refetch all city, specialization tool to verify correct Id's\n\nUse the \"Doctors Tool\" with  specializationId and branchId.\nMandatory - \n\nRetrieve fresh doctors list.\n\nValidate doctor IDs.\n\nPresent doctors to the user and confirm doctor selection.\n\nStep 5: Check Doctor Availability\n\nUse \"Availability Tool\" with doctorId and branchId.\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) ) then\nShow available slots, time formatted as \"HH:mm\" (e.g., \"09:30\") without seconds or AM/PM.\n\n(Note only slots whose \"isBooked\": false)\n\nStep 6: Book Appointment - Collect Details\n\nCollect purposeOfMeet, patientName, phoneNo (with country code), email (validate), age, gender.\n\nConfirm all details with user before booking.\n\nStep 7: Final Booking Call (Strict Validation)\nbefore passing data to booking tool refetch all previous city, specialization,doctor availability tool to verify correct Id's\nPrepare booking payload with validated data:\n\njson\n{\n  \"purposeOfMeet\":\"[user input]\",\n  \"doctorId\":[validated doctorId],\n  \"doctorTimeSlotId\":[doctorTimeSlotId],\n  \"patientFullDetail\": {\n    \"patientName\":\"[user input]\",\n    \"phoneNo\": \"[user input]\",\n    \"email\":\"[validated user email]\",\n    \"age\":[user input],\n    \"gender\":\"[user input]\"\n  }\n}\nDO NOT use default or static values except patientId=1.\n\nConfirm IDs and fields with user; refetch fresh data if any ID equals 1 or is invalid.\n\nPass payload exactly as shown to \"Booking Tool\".\n\n-after appointment booked using \"Booking Tool\" event create in \"Create appointment tool\" and in \"Summary\" store patient appointment Id, patient name,email,purposeOfMeet and phone no with +91 country code.\nalso in title of calander event store \"Summary\" data\n\n(don't forgot this step)\n- after appointment is booked using \"create appointment tool\" send an email to user enter mail that your appointment is booked successfully with \"Summary\" data.\n\nStep 8: Confirm Booking\n\nInform the user of successful booking.\n\nShow booking details and confirmation.(dont show and save calander id. booking id always come after book appointment using booking tool)\n\nSave the generated appointment ID from booking response for rescheduling.\n\nafter booking confirm ask patient do you want to fill intake form\nif patient say \"yes\"\n\nstep 9: call external \"intake\" tool and complete the intake process using \"intake\" tool (dont ask what you would like to include in the intake form) just call \"intake\" tool you will get all info from there\n\nif no\nsay Thank you.\n\nRescheduling Flow\n# If the user want to reschedule the Appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter\n(don't forget below step to fetch available slots by using Availability tool)\nMandatory - (always convert fetched time into indian asia/kolkata time (+5:30) )\n\nlater show the available slots for the particular doctor by fetch the data of available slots from \"Availability\" tool and then use the \"reschedule\" tool to reschedule the appoinment, when rescheduling the appoinment make sure the patient id is proper no memory asumptions get fresh data\n\n- before appointment reschedule in \"reschedule\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment reschedule using \"reschedule\" tool update event in \"Update appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is reschedule send an email to patient  email which you will get from 'patients' tool that your appointment is reschedule successfully.\n\nCancel Flow\n# If the user want to cancle the appoinment ask for the Appointment Id then fetech the data from 'patients' tool by giving the Appointment Id parameter (no memory assumptions give from patients tool)  and show the user and take confirmation and then use \"cancle\" tool to cancle the appoinment. when canceling the appoinment make sure the patient id is proper (no memory asumptions get fresh data)\n\n- before appointment cancle in \"cancle appointment\" tool you need to fetch an event from \"fetch appointment\" tool using patient  email which you will get from 'patients' tool (extract event id from here)\n- after appointment cancle using \"cancle\" tool delete event in \"cancle appointment\" tool(pass extracted event id here)\n\n(don't forgot this step)\n- after appointment is cancle send an email to user enter mail that your appointment is cancle successfully.\n\nAdditional Notes:\n\nAlways fetch fresh data from tools; never reuse or assume previous IDs.\n\nTime must be passed in strict \"HH:mm\" format without seconds or AM/PM.\n\nPatientId remains 1 as per system design.\n\nConfirm every critical step and data point with user for accuracy.\n\nStore and use appointment ID generated at booking time for validating and rescheduling.\n\nHandle errors gracefully and guide the user to correct inputs.\n\n######Sub Workflow call process########\nwhen patient ask i want to fill Intake form something similar related to intake call \"intake\" tool and complete intake process using that tool\n\nCurrent timedate: {{ $now }}",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        4464,
+        7024
+      ],
+      "id": "48d946ff-6bc3-44a5-8c0b-01731dbb159b",
+      "name": "AI Agent1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        4112,
+        6592
+      ],
+      "id": "a30c098e-1ef0-4147-8c75-febf046658a7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "rFKqaoSrJin0YVxS",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.memory }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        3872,
+        6752
+      ],
+      "id": "addbc1a9-7035-49b0-9bc7-562ba3543ec8",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Subject', ``, 'string') }}",
+        "emailType": "text",
+        "message": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Message', ``, 'string') }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        5200,
+        7200
+      ],
+      "id": "006668ae-a0f9-4c1e-a0cf-b281a7462d23",
+      "name": "Send a message in Gmail",
+      "webhookId": "eb853a43-19cb-4ad1-a8d8-02d5b3e7e97c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1F37zF2micVnAPHl",
+          "name": "Gmail account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+          ],
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        5024,
+        6576
+      ],
+      "id": "3e60026d-3461-4fb0-91bf-0a176e646a4e",
+      "name": "Create appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "updateFields": {
+          "attendeesUi": {
+            "values": {
+              "attendees": [
+                "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('attendees0_Attendees', ``, 'string') }}"
+              ]
+            }
+          },
+          "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+          "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        5216,
+        6752
+      ],
+      "id": "3349d6c5-8f27-423c-838c-0f9cfcfe6332",
+      "name": "Update appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Delete an event in Google Calendar",
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "eventId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Event_ID', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        3824,
+        6960
+      ],
+      "id": "684a5ce2-8603-4a86-92d6-61a31cafae62",
+      "name": "cancle appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get many events in Google Calendar",
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "timeMin": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('After', ``, 'string') }}",
+        "timeMax": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Before', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        5216,
+        6992
+      ],
+      "id": "c0c4d0af-e17f-44eb-8194-01cda5d6c1b6",
+      "name": "fetch  appointment",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "memory": "={{ $json.memory }}",
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        5920,
+        7472
+      ],
+      "id": "ca595457-3b00-4008-ae7b-f7722beb052a",
+      "name": "intake1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/branches/by-specialization",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId here`, 'string') }}"
+            },
+            {
+              "name": "city",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass city here`, 'string') }}"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        5248,
+        7536
+      ],
+      "id": "f6d82543-55d5-43d5-abed-bd94004417a9",
+      "name": "city1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/specializations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4976,
+        7440
+      ],
+      "id": "47ee2e79-0d26-40d5-9c64-8de538a882e7",
+      "name": "Specialisation1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "to fetch doctors",
+        "url": "http://173.255.192.198:3034/doctors/by-specialization-and-branch",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "specializationId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters0_Value', `pass specializationId`, 'string') }}"
+            },
+            {
+              "name": "branchId",
+              "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('parameters1_Value', `pass branchId`, 'string') }}"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4736,
+        7520
+      ],
+      "id": "2398e127-5788-497e-8e54-a9a95a938471",
+      "name": "Doctors1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/doctor-availabilities/daily-slots",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass doctorId and branchId only`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4496,
+        7440
+      ],
+      "id": "b5a2b8c8-86e4-44d7-82b2-d16ad668cd47",
+      "name": "Availability1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/patient-bookings",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient all data(don't pass AM or PM for starttime and endtime)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4224,
+        7520
+      ],
+      "id": "14519594-2183-48da-bd24-5c6c5d7a077f",
+      "name": "Booking1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        4080,
+        7408
+      ],
+      "id": "0d2f76bf-fc25-4c23-8f1b-e9a0e5b2f192",
+      "name": "patients1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{ $fromAI(\"id\") }}/reschedule",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass patient reschedule data(doctorId,doctorTimeSlotId)`, 'string') }}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3824,
+        7488
+      ],
+      "id": "80a733e1-64d1-48d4-9ab4-52ddb2023ac9",
+      "name": "reschedule1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "toolDescription": "pass the ID from patients",
+        "method": "PATCH",
+        "url": "=http://173.255.192.198:3034/patient-bookings/{{$fromAI(\"id\")}}/cancel",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        3840,
+        7200
+      ],
+      "id": "2b602300-12e9-4278-8336-bb84ed48f446",
+      "name": "cancle1",
+      "disabled": true
+    }
+  ],
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "yes",
+          "memory": "919067335884"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        []
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch  appointment1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "city": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specialisation": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doctors": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Availability": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "patients": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reschedule": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch  appointment": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "city1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Specialisation1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Doctors1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Availability1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "patients1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reschedule1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "cancle1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "0da1f6fd-4c99-428f-b5f6-0cad7c85c939",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "8tLYxVMvs6POF6uK",
+  "tags": []
+}

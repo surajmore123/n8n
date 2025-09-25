@@ -1,0 +1,940 @@
+{
+  "name": "My workflow 11",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1024,
+        -144
+      ],
+      "id": "b83c2922-374f-461a-a2f8-d18e3454c2ca",
+      "name": "WhatsApp Trigger",
+      "webhookId": "your-webhook-id",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=# Healthcare Orchestration Agent\n\nYou are a **Healthcare Menu Assistant** that helps patients navigate our healthcare services.\n\n## Your Role:\n1. **Welcome new conversations** with a friendly greeting and menu\n2. **Route patient requests** to appropriate services\n3. **Handle menu selections** (1, 2, or text-based intents)\n4. **Maintain conversation context** for smooth user experience\n\n## Menu Options:\n**1** - Book/Manage Appointments (reschedule, cancel, new booking)\n**2** - Generate SOAP Notes (for healthcare providers)\n**3** - Help & Support\n\n## Conversation Flow:\n\n### First Contact:\n🏥 **Welcome to Healthcare Assistant!**\n\nHow can I help you today?\n\n**1** - Book or manage appointments\n**2** - Generate SOAP notes  \n**3** - Help & support\n\nReply with **1**, **2**, **3**, or tell me what you need.\n\n### Intent Recognition:\nRecognize these patterns and route accordingly:\n\n**Appointment Intent** (route to option 1):\n- \"book appointment\", \"schedule\", \"reschedule\", \"cancel appointment\"\n- \"need doctor\", \"consultation\", \"appointment\"\n- \"change my appointment\", \"book\", \"doctor visit\"\n- Numbers: \"1\"\n\n**SOAP Intent** (route to option 2):\n- \"generate soap\", \"soap note\", \"medical notes\"\n- \"patient documentation\", \"create soap\"\n- \"audio recording\", \"transcribe\", \"medical record\"\n- Numbers: \"2\"\n\n**Help Intent**:\n- \"help\", \"support\", \"how to\", \"instructions\"\n- Numbers: \"3\"\n\n### Response Format:\nWhen routing:\n- **For Appointments (1)**: \"✅ Connecting you to our appointment system...\"\n- **For SOAP (2)**: \"📝 Connecting you to our SOAP generation system...\"\n- **For Help (3)**: Provide help information directly\n\n### Help Information:\nWhen user asks for help:\n\"📋 **How to use our services:**\n\n**Appointments (Option 1):**\n- Book new appointments with doctors\n- Reschedule existing appointments\n- Cancel appointments\n- View appointment details\n\n**SOAP Notes (Option 2):**\n- Upload audio recordings of consultations\n- Generate structured medical documentation\n- Download SOAP notes as PDF\n\n**Need more help?** Contact support at [your-contact]\"\n\n### Unknown Intent:\nIf unclear, show the menu again:\n\"I'd be happy to help! Please choose:\n**1** - Appointments\n**2** - SOAP Notes\n**3** - Help\"\n\n## Important:\n- Be warm and professional\n- Use emojis sparingly but effectively\n- Keep responses concise\n- Always acknowledge the user's choice\n- Store the selected option for routing\n\nCurrent time: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -768,
+        -144
+      ],
+      "id": "dc6b2a09-0015-4198-a38b-104e869f83a4",
+      "name": "Orchestration Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.contacts[0].wa_id }}132"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -672,
+        80
+      ],
+      "id": "2488fe14-4dea-4946-abec-5cbaad570a4e",
+      "name": "Orchestration Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -752,
+        -272
+      ],
+      "id": "4c926b2d-edd6-40be-8284-4219f529ecad",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "appointment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "appointment-check"
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "appointment_service"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "soap",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "soap-check"
+                  }
+                ],
+                "combinator": "or"
+              },
+              "renameOutput": true,
+              "outputKey": "soap_service"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ !$json.route.toLowerCase().includes('appointment') && !$json.route.toLowerCase().includes('soap') }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "id": "menu-only-check"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "menu_only"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -160,
+        -160
+      ],
+      "id": "0a98138b-43f8-4d44-80f3-1a8a80c0b643",
+      "name": "Service Router",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "your-appointment-workflow-id",
+          "mode": "list",
+          "cachedResultName": "Appointment Process"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -240
+      ],
+      "id": "ea2b927b-1f23-4a54-b245-553780dc1129",
+      "name": "Call Appointment Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "your-soap-workflow-id",
+          "mode": "list",
+          "cachedResultName": "SOAP Generation"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        416,
+        -48
+      ],
+      "id": "7a20afc2-a8cc-4a7a-88f4-e35eff4dadf4",
+      "name": "Call SOAP Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.agentResponse }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        416,
+        160
+      ],
+      "id": "c4758aeb-0edc-4b8e-91a9-1342a0b55eeb",
+      "name": "Send Menu Message",
+      "webhookId": "menu-message-webhook",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Access the first input item\nconst input = $input.first().json;\n\n// Extract user message\nconst userMessage = input.messages?.[0]?.text?.body?.toLowerCase() || '';\nconst agentResponse = input.output || '';\n\n// Debug logs\nconsole.log('User message:', userMessage);\nconsole.log('Agent response:', agentResponse);\n\n// Determine routing\nlet route = 'menu';\nif (userMessage.includes('appointment') || userMessage.includes('1')) {\n  route = 'appointment';\n} else if (userMessage.includes('soap') || userMessage.includes('2')) {\n  route = 'soap';\n} else if (userMessage.includes('help') || userMessage.includes('3')) {\n  route = 'help'; // You can wire this in later\n}\n\n// Return JSON object\nreturn [{ json: { route, userMessage, agentResponse } }];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -432,
+        -144
+      ],
+      "id": "7264ee2c-a899-46b1-95ce-f98448f1d163",
+      "name": "Routing Logger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bd594242-97ab-449e-84a4-78ad392ed4b5",
+              "name": "usermessage",
+              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -304,
+        -480
+      ],
+      "id": "d0176486-276f-4ae3-87fd-fdb14ac4e3a5",
+      "name": "Edit Fields",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": "your-intake-workflow-id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        144,
+        272
+      ],
+      "id": "07ecc7cf-d870-454f-8745-4e9c49c06054",
+      "name": "Call Intake Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": "your-summary-workflow-id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        1024
+      ],
+      "id": "cd09ad9b-b7ae-4a9f-8bb1-0f66b50839bb",
+      "name": "Call Summary Workflow"
+    },
+    {
+      "parameters": {
+        "workflowId": "your-prescription-workflow-id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -528,
+        1184
+      ],
+      "id": "5864b58f-a9be-48e2-b129-9de0749f5e7c",
+      "name": "Call Prescription Workflow"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1488,
+        928
+      ],
+      "id": "5a4ac176-7695-4c75-8b2e-e3e90a917dfb",
+      "name": "WhatsApp Trigger1",
+      "webhookId": "your-webhook-id",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Extract WhatsApp fields\nconst messageType = input.messages?.[0]?.type || '';\nconst textMessage = input.messages?.[0]?.text?.body?.toLowerCase() || '';\nconst agentResponse = input.output || '';\n\nlet route = 'menu';\n\n// Route by message type\nif (messageType === 'audio') {\n  route = 'soap';\n} else if (messageType === 'image') {\n  route = 'prescription';\n} else if (messageType === 'document') {\n  const mime = input.messages?.[0]?.document?.mime_type || '';\n  if (mime.includes('pdf')) {\n    route = 'summary';\n  }\n}\n\n// Route by text intents\nelse if (textMessage.includes('appointment') || textMessage.includes('1')) {\n  route = 'appointment';\n} else if (textMessage.includes('soap') || textMessage.includes('2')) {\n  route = 'soap';\n} else if (textMessage.includes('intake') || textMessage.includes('patient info')) {\n  route = 'intake';\n} else if (textMessage.includes('help') || textMessage.includes('3')) {\n  route = 'help';\n}\n\nreturn [{ json: { route, userMessage: textMessage, messageType, agentResponse } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1200,
+        928
+      ],
+      "id": "76732305-9afe-4232-9f0c-054294d93ba7",
+      "name": "Routing Logger1"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "appointment",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "12a92be9-f0f9-4652-a83b-d71124a636d1"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "intake",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "6d0bebd2-1b63-47c4-82f4-bb06fb8b6c93"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "soap",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "1c587754-85da-4963-9bd5-ef91c8a7c663"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "summary",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "eab975fa-33c5-42fb-aaaa-1427236b8d40"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "prescription",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "9eec62ff-2568-4a23-971e-80b66aa874eb"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "menu",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "85557cdd-9795-4118-96c3-70551066c969"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "help",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "dcb689a5-1123-48bd-9af3-270f8a6c5054"
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -880,
+        928
+      ],
+      "id": "e3f5839e-411b-4742-a783-aaac4e278a6e",
+      "name": "Service Router1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -848,
+        48
+      ],
+      "id": "14075694-0677-45d9-ab9e-4a89d0e0c411",
+      "name": "Call Appointment Workflow1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": "your-soap-workflow-id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1,
+      "position": [
+        -544,
+        864
+      ],
+      "id": "d197a76f-5a42-4c92-9a61-55163190e0eb",
+      "name": "Call SOAP Workflow1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+        "textBody": "🏥 Welcome to Healthcare Assistant!\n\nHow can I help you today?\n\n*1* - Book or manage appointments\n*2* - Generate SOAP notes\n*Intake* - Provide patient intake info\n*Upload PDF* - For summary\n*Prescription Image* - For prescription processing\n\nReply with a number, text, or upload a file.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        1376
+      ],
+      "id": "f9b3c466-0066-46fc-aacc-c5a8d3e94799",
+      "name": "Send Menu Message1",
+      "webhookId": "38dfe795-ec08-40dd-a8da-1213990f98f2",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "he4FCBahK5WAU0jM",
+          "mode": "list",
+          "cachedResultName": "medical summary connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "summarize the medical report",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -704,
+        448
+      ],
+      "id": "62477930-3bb8-4a14-8305-466e5fdaa888",
+      "name": "appointment"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "VvtHQT18WSNQHAMt",
+          "cachedResultName": "intakeorche"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "route": "={{ $json.route }}",
+            "userMessage": "={{ $json.userMessage }}",
+            "messageType": "={{ $json.messageType }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+            "sender": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "route",
+              "displayName": "route",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "userMessage",
+              "displayName": "userMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "messageType",
+              "displayName": "messageType",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "sender",
+              "displayName": "sender",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        -576,
+        624
+      ],
+      "id": "4f0edf4e-f203-47a3-b8a1-84b9913f01e1",
+      "name": "intake"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "4cd25fad-56ca-4972-b1a7-337ac43a4af1",
+      "name": "Respond to User",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        560,
+        304
+      ],
+      "typeVersion": 1,
+      "webhookId": "7488997c-735f-4bfb-b36c-3b156f0bdab6",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Agent": {
+      "main": [
+        [
+          {
+            "node": "Routing Logger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestration Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Orchestration Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Router": {
+      "main": [
+        [
+          {
+            "node": "Call Appointment Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call SOAP Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Menu Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routing Logger": {
+      "main": [
+        [
+          {
+            "node": "Service Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        []
+      ]
+    },
+    "WhatsApp Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Routing Logger1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Routing Logger1": {
+      "main": [
+        [
+          {
+            "node": "Service Router1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service Router1": {
+      "main": [
+        [
+          {
+            "node": "appointment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "intake",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call SOAP Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Summary Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Call Prescription Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Menu Message1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Menu Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c0119a1f-93d5-4d08-85f6-7bfd2398ec1d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "5HBhoo3y2nfCaTcl",
+  "tags": []
+}

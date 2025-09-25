@@ -1,5 +1,5 @@
 {
-  "name": "medical summary",
+  "name": "medical summary connect",
   "nodes": [
     {
       "parameters": {
@@ -8,12 +8,12 @@
         ],
         "options": {}
       },
-      "id": "7ab63c28-e319-4573-aff8-d3b64aa16141",
+      "id": "d6925102-9603-46b5-9f2a-478cdab87be4",
       "name": "WhatsApp Trigger",
       "type": "n8n-nodes-base.whatsAppTrigger",
       "position": [
-        -2496,
-        288
+        -1632,
+        800
       ],
       "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
       "typeVersion": 1,
@@ -22,52 +22,29 @@
           "id": "25JD1aTdJS8Y1Ejd",
           "name": "Suraj"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
         "assignments": {
           "assignments": [
             {
-              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
-              "name": "message_type",
-              "type": "string",
-              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].type }}"
-            },
-            {
               "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
               "name": "message_text",
               "type": "string",
-              "value": "={{$json.candidates[0].content.parts[0].text}}"
-            },
-            {
-              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
-              "name": "from",
-              "type": "string",
-              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}"
-            },
-            {
-              "id": "log_id_001",
-              "name": "timestamp",
-              "type": "string",
-              "value": "={{ new Date().toISOString() }}"
-            },
-            {
-              "id": "log_id_002",
-              "name": "session_id",
-              "type": "string",
-              "value": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}-{{ new Date().getTime() }}"
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
             }
           ]
         },
         "options": {}
       },
-      "id": "94aa7141-aeef-4feb-adac-76717eb2130b",
+      "id": "9f908851-4ba8-4558-a8da-30ec1037d356",
       "name": "Get User's Message",
       "type": "n8n-nodes-base.set",
       "position": [
-        -976,
-        480
+        720,
+        432
       ],
       "typeVersion": 3.4,
       "onError": "continueRegularOutput"
@@ -85,12 +62,12 @@
           ]
         }
       },
-      "id": "fa33fd92-9da5-46c4-80c9-75745d667f14",
+      "id": "c79cc782-15ae-4c9c-bcae-dcd07e6dcb4e",
       "name": "Image Explainer",
       "type": "@n8n/n8n-nodes-langchain.chainLlm",
       "position": [
-        -1600,
-        384
+        96,
+        336
       ],
       "typeVersion": 1.4
     },
@@ -100,12 +77,12 @@
         "operation": "mediaUrlGet",
         "mediaGetId": "={{$json.messages[0].image.id }}"
       },
-      "id": "adeef029-4388-493c-8e95-f282177c9c24",
+      "id": "0890f27a-112a-4697-a3ee-ccb423dbc1d5",
       "name": "get image url",
       "type": "n8n-nodes-base.whatsApp",
       "position": [
-        -2048,
-        320
+        -128,
+        112
       ],
       "typeVersion": 1,
       "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
@@ -123,12 +100,12 @@
         "nodeCredentialType": "whatsAppApi",
         "options": {}
       },
-      "id": "bad9cf1f-8096-4ab3-80e4-90ba6b7ee0ad",
+      "id": "36953a42-3e68-4c1d-8d74-a3f5b2f319d2",
       "name": "download image",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        -1824,
-        320
+        208,
+        0
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -146,12 +123,12 @@
           "systemMessage": "you are a medical report summary agent\nyour work is to summarise the report in simple language to understand to patient"
         }
       },
-      "id": "7394451f-49db-4df5-82ae-2a7886962820",
+      "id": "70bb51bb-5a2a-4a37-a9e3-27b8e8b07740",
       "name": "summeries report",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        -752,
-        480
+        944,
+        432
       ],
       "typeVersion": 1.6
     },
@@ -163,12 +140,12 @@
         "textBody": "={{ $json.ai_response ||$json.output }}",
         "additionalFields": {}
       },
-      "id": "ac4e9d07-ff1a-4386-88d0-30d952c0e809",
+      "id": "c412cd8b-acae-4a3c-a6aa-bc3561f98325",
       "name": "output",
       "type": "n8n-nodes-base.whatsApp",
       "position": [
-        112,
-        96
+        1600,
+        48
       ],
       "typeVersion": 1,
       "webhookId": "77a0150a-8819-49b2-88c7-ab75560f62e7",
@@ -177,7 +154,8 @@
           "id": "ZrlWhery0a9U2IJT",
           "name": "Suraj"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -185,12 +163,12 @@
         "operation": "mediaUrlGet",
         "mediaGetId": "={{ $json.messages[0].document.id}}"
       },
-      "id": "bca12eaa-5336-46ca-b076-8b8809c8f71d",
+      "id": "b9b188e5-a0b6-4a12-908c-89fa3581fb30",
       "name": "get pdf url",
       "type": "n8n-nodes-base.whatsApp",
       "position": [
-        -2048,
-        576
+        -464,
+        384
       ],
       "typeVersion": 1,
       "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
@@ -199,21 +177,22 @@
           "id": "ZrlWhery0a9U2IJT",
           "name": "Suraj"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
-        "url": "={{ $json.url }}",
+        "url": "={{ $json.file_url }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "whatsAppApi",
         "options": {}
       },
-      "id": "830b4008-11c2-4816-bd50-96cf269b6e60",
+      "id": "2ed60bae-1394-469d-b275-69cd5e249907",
       "name": "download pdf",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        -1824,
-        576
+        -48,
+        592
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -231,22 +210,22 @@
       "type": "n8n-nodes-base.extractFromFile",
       "typeVersion": 1,
       "position": [
-        -1520,
-        576
+        176,
+        592
       ],
-      "id": "036ba681-7602-4c9d-ac69-b6ade2d47ac4",
+      "id": "dff76512-e68e-496a-94dc-443cb67ea599",
       "name": "extraction pdf"
     },
     {
       "parameters": {
         "options": {}
       },
-      "id": "9c486752-b08e-440c-9ac3-7c091eb3a27c",
+      "id": "c21610ea-493d-4fa0-8112-260459cd4a95",
       "name": "image chat model",
       "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
       "position": [
-        -352,
-        208
+        1344,
+        160
       ],
       "typeVersion": 1,
       "credentials": {
@@ -261,12 +240,12 @@
         "sessionIdType": "customKey",
         "sessionKey": "=whatsapp-tutorial-{{ $json.from }}"
       },
-      "id": "5148826f-e724-45b8-9447-337f74fb76d6",
+      "id": "c265ffa1-5618-48a8-ba1b-1d18740daead",
       "name": "memory",
       "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
       "position": [
-        -208,
-        256
+        1488,
+        208
       ],
       "typeVersion": 1.2
     },
@@ -332,14 +311,15 @@
         },
         "options": {}
       },
-      "id": "3c512c85-969b-4409-b34a-040e86a1db24",
+      "id": "04d9a0c8-d0a7-4ac2-8e46-3b58fe54554e",
       "name": "Prepare Success Log",
       "type": "n8n-nodes-base.set",
       "position": [
-        -256,
-        464
+        1760,
+        240
       ],
-      "typeVersion": 3.4
+      "typeVersion": 3.4,
+      "disabled": true
     },
     {
       "parameters": {
@@ -362,10 +342,10 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        -1200,
-        480
+        496,
+        432
       ],
-      "id": "f0fa2799-9cd0-49d3-83f7-ff65dc1668fa",
+      "id": "c68394b4-986a-4b9a-b8b4-ea24ac084f28",
       "name": "HTTP Request1",
       "onError": "continueRegularOutput"
     },
@@ -375,12 +355,12 @@
         "operation": "mediaUrlGet",
         "mediaGetId": "={{ $json.messages[0].document.id }}"
       },
-      "id": "0b6ef827-3ee4-4b5b-b832-50c6de289fde",
+      "id": "88892271-1096-4674-8047-56d3ab1b2038",
       "name": "get image url1",
       "type": "n8n-nodes-base.whatsApp",
       "position": [
-        -2048,
-        768
+        -1168,
+        752
       ],
       "typeVersion": 1,
       "webhookId": "e8841412-a27b-4d4e-a2a4-96f5cacf8177",
@@ -389,21 +369,22 @@
           "id": "ZrlWhery0a9U2IJT",
           "name": "Suraj"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
-        "url": "={{ $json.url }}",
+        "url": "={{ $json.file_url }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "whatsAppApi",
         "options": {}
       },
-      "id": "db08993d-f95c-485f-a683-2ccbc69b9eaa",
+      "id": "fba1f415-7e19-46f7-8433-8fb97aecd898",
       "name": "download image1",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        -1824,
-        768
+        -336,
+        720
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -453,7 +434,7 @@
                 "conditions": [
                   {
                     "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
-                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "leftValue": "={{ $json.file_type ==\"application/pdf\" }}",
                     "rightValue": "",
                     "operator": {
                       "type": "boolean",
@@ -478,7 +459,7 @@
                 "conditions": [
                   {
                     "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
-                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "leftValue": "={{ $json.file_type == \"image/jpeg\" }}",
                     "rightValue": "",
                     "operator": {
                       "type": "boolean",
@@ -521,12 +502,12 @@
         },
         "options": {}
       },
-      "id": "008e5dd9-1d1d-42e9-a3ae-8adf342033b4",
+      "id": "cad9cb72-bcfa-45ef-9a57-db8fe9e5e6d3",
       "name": "switch",
       "type": "n8n-nodes-base.switch",
       "position": [
-        -2272,
-        256
+        -784,
+        208
       ],
       "typeVersion": 3.2
     },
@@ -541,91 +522,117 @@
       "type": "@n8n/n8n-nodes-langchain.agent",
       "typeVersion": 2.1,
       "position": [
-        -320,
-        -16
+        1168,
+        -64
       ],
-      "id": "da23e85a-f195-44c9-b4bb-c47bfa65f628",
+      "id": "ab4e7441-15c6-4ea2-bd18-0c967c2ab55c",
       "name": "AI Agent"
     },
     {
-      "parameters": {
-        "mode": "insert",
-        "pineconeIndex": {
-          "__rl": true,
-          "value": "medicalreport",
-          "mode": "list",
-          "cachedResultName": "medicalreport"
-        },
-        "options": {
-          "pineconeNamespace": "medical report"
-        }
-      },
-      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
-      "typeVersion": 1.3,
-      "position": [
-        -2480,
-        1200
-      ],
-      "id": "05370a67-04b8-4f66-ae10-d79235a1b8d0",
-      "name": "Pinecone Vector Store",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "modelName": "models/gemini-embedding-001"
-      },
-      "type": "@n8n/n8n-nodes-langchain.embeddingsGoogleGemini",
-      "typeVersion": 1,
-      "position": [
-        -2496,
-        1424
-      ],
-      "id": "e85699ff-abcf-42ad-97f2-9fb6412c35c6",
-      "name": "Embeddings Google Gemini",
-      "disabled": true
-    },
-    {
-      "parameters": {
-        "dataType": "binary",
-        "textSplittingMode": "custom",
-        "options": {}
-      },
-      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
       "typeVersion": 1.1,
       "position": [
-        -2368,
-        1424
+        -592,
+        -32
       ],
-      "id": "3df2228b-3d38-4098-bf5a-3ef82b3f2798",
-      "name": "Default Data Loader",
-      "disabled": true
+      "id": "c2fd7c1f-f157-4ac3-aa60-b1471d96b026",
+      "name": "Wait",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
     },
     {
       "parameters": {
-        "options": {}
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "⏳ We are processing your request, please wait a moment...",
+        "additionalFields": {}
       },
-      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
-      "typeVersion": 1,
+      "id": "493f3a30-e423-401a-8c79-b98db93de6da",
+      "name": "Send Wait Message3",
+      "type": "n8n-nodes-base.whatsApp",
       "position": [
-        -2272,
-        1632
+        -32,
+        -96
       ],
-      "id": "deca4c6c-7d52-4ecd-91b0-1754d6c6cfe9",
-      "name": "Recursive Character Text Splitter",
-      "disabled": true
+      "typeVersion": 1,
+      "webhookId": "b7b2a928-229b-4b52-b35b-f3ad0e446c6f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -560,
+        384
+      ],
+      "id": "e4a31838-7224-43ed-aeac-3f62b7164a8c",
+      "name": "Wait1",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        -736,
+        544
+      ],
+      "id": "eff07b4e-1023-4b41-a6e7-bc4eb2f571f4",
+      "name": "Wait2",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "query"
+            },
+            {
+              "name": "file_url"
+            },
+            {
+              "name": "file_type"
+            },
+            {
+              "name": "memory"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -1264,
+        256
+      ],
+      "id": "1ad52c37-589a-4f3d-9345-33313a6d80ef",
+      "name": "When Executed by Another Workflow"
     }
   ],
-  "pinData": {},
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "summarize the medical report",
+          "file_url": "https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1944557066395317&ext=1756116047&hash=ARnu5HhCqleHYJKhABJotGlfMPUqBjpxdYjeYSpWfD4Pcg",
+          "file_type": "image/jpeg",
+          "memory": "919067335884"
+        }
+      }
+    ]
+  },
   "connections": {
     "WhatsApp Trigger": {
       "main": [
-        [
-          {
-            "node": "switch",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Get User's Message": {
@@ -674,24 +681,12 @@
     },
     "summeries report": {
       "main": [
-        [
-          {
-            "node": "Prepare Success Log",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "get pdf url": {
       "main": [
-        [
-          {
-            "node": "download pdf",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "download pdf": {
@@ -777,13 +772,7 @@
     },
     "get image url1": {
       "main": [
-        [
-          {
-            "node": "download image1",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "download image1": {
@@ -801,21 +790,21 @@
       "main": [
         [
           {
-            "node": "get image url",
+            "node": "Wait",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "get pdf url",
+            "node": "Wait1",
             "type": "main",
             "index": 0
           }
         ],
         [
           {
-            "node": "get image url1",
+            "node": "Wait2",
             "type": "main",
             "index": 0
           }
@@ -831,43 +820,53 @@
     },
     "AI Agent": {
       "main": [
+        []
+      ]
+    },
+    "Wait": {
+      "main": [
         [
           {
-            "node": "output",
+            "node": "Send Wait Message3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "get image url",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Embeddings Google Gemini": {
-      "ai_embedding": [
+    "Wait1": {
+      "main": [
         [
           {
-            "node": "Pinecone Vector Store",
-            "type": "ai_embedding",
+            "node": "download pdf",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Default Data Loader": {
-      "ai_document": [
+    "Wait2": {
+      "main": [
         [
           {
-            "node": "Pinecone Vector Store",
-            "type": "ai_document",
+            "node": "download image1",
+            "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Recursive Character Text Splitter": {
-      "ai_textSplitter": [
+    "When Executed by Another Workflow": {
+      "main": [
         [
           {
-            "node": "Default Data Loader",
-            "type": "ai_textSplitter",
+            "node": "switch",
+            "type": "main",
             "index": 0
           }
         ]
@@ -878,10 +877,11 @@
   "settings": {
     "executionOrder": "v1"
   },
-  "versionId": "3e68728f-458e-471e-b44c-70751ea2b52c",
+  "versionId": "471bad47-73c2-477d-a2b6-7ae295afa460",
   "meta": {
+    "templateCredsSetupCompleted": true,
     "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
   },
-  "id": "ladEXAJFviJvio5r",
+  "id": "he4FCBahK5WAU0jM",
   "tags": []
 }

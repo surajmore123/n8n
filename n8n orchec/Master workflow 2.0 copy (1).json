@@ -1,0 +1,3379 @@
+{
+  "name": "Master workflow 2.0 copy",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2464,
+        -1952
+      ],
+      "id": "7a3607dd-f04a-45cd-b4d9-4296b4613155",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8tLYxVMvs6POF6uK",
+          "mode": "list",
+          "cachedResultName": "appointment connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('When chat message received').item.json.sessionId }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2688,
+        -1936
+      ],
+      "id": "30169025-abf0-4e3e-ac50-fa82d1922a05",
+      "name": "appointment booking",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n            Tools to call external workflows",
+        "height": 260,
+        "width": 444,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2672,
+        -2048
+      ],
+      "typeVersion": 1,
+      "id": "174fed31-f66d-4b92-a9e0-93edc61f08bc",
+      "name": "Sticky Note",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an Orchestrator Agent responsible for routing user intents to appropriate sub-workflows and properly formatting their responses.\n\nCORE RESPONSIBILITIES:\n1. Analyze detected intent: {{ $json.output }} (this is the user intention rout as per it)\n2. Process chat message:{{ $('When chat message received').item.json.chatInput }} (send this as it is in the query to the workflow that you call)\n3. Route to appropriate sub-workflow based on intent\n4. Extract and format sub-workflow responses properly\n\nAVAILABLE SUB-WORKFLOWS:\n- appointment connect: For booking new appointments,changing existing appointments and canceling appointments\n\n- Intake - to intake patients information(only call when patient want to intake the data)\n\nROUTING LOGIC:\n- If intent is \"booking\", \"\" or \"reschedule\", \"cancel\" or contains keywords related to above → call appointment connect workflow\n- If intent is \"Intake\" → Call the Intake workflow\n- If intent is \"Medical Summary\" or if user uploads a PDF/image → Call the medical summary connect workflow\n- If intent is \"general\" or unclear → ask user to specify their need\n\nCRITICAL OUTPUT PROCESSING:\nWhen receiving sub-workflow responses in format:\n{\n  \"workflow_response\": {\n    \"result\": \"[{\\\"output\\\": \\\"actual_message_here\\\"}]\"\n  }\n}\n\nEXTRACT ONLY the value from the \"output\" field within the result array.\n\nRESPONSE FORMATTING INSTRUCTIONS:\n1. Parse the JSON result array from sub-workflow\n2. Extract the \"output\" value from the first object in the array\n3. Return ONLY the extracted output value as your response\n4. Do NOT include JSON structure, brackets, or escape characters\n5. Present the response as clean, readable text\n",
+        "options": {
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2784,
+        -2256
+      ],
+      "id": "f65d3f83-2c2f-4674-9af4-21fcd61ee3e5",
+      "name": "Master Agent",
+      "disabled": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Ashwin. How can I assist you today?",
+        "options": {
+          "allowFileUploads": true,
+          "allowedFilesMimeTypes": "*"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        1952,
+        -2256
+      ],
+      "id": "c757fba2-115f-42e4-93a9-dda2b839d6fe",
+      "name": "When chat message received",
+      "webhookId": "c93cc5f7-d5d7-4e53-ae91-8b8e47d59f8c",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('When chat message received').item.json.sessionId }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2160,
+        -1952
+      ],
+      "id": "5b2569b6-40b7-416f-b685-4443fad92826",
+      "name": "Simple Memory1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}\n",
+        "options": {
+          "systemMessage": "=You are an AI assistant that classifies the user's intent.\nMost Most important - \n\nInputs:\n- `chatHistory`: full conversation history → {{ JSON.stringify($json.messages) }}\n- Mostly reply on the chat History\n- MOST Important Don't general message (For message that consist yes, no, y, n, and also the things that user  ) if there is Chat History Present \nYour job:\nAnalyze the **current message** in the context of the **full chat history**.\n\nRules:\n\n1. If the message is a greeting like “hi” or “hello” **and there's no prior context**, classify as `general message`.\n2. Consider keywords like \"book\", \"schedule\", \"reschedule\", \"cancel\", or discussion-related replies in your decision.\n3. Output should always reflect the actual flow of conversation.\n4.when user enter below patient info then use appointment tool (dont halusinate)\nexample:\nsuraj more\n+918855669988\n65\nsurajmorecombat@gmail.com\n\n5. If user uploads PDF or image OR explicitly asks “summarize report”, “medical report”, “test report”, etc. → classify as Medical Summary.\n\n\nValid outputs (must choose exactly one and it should be based conversation history):\n- Appointment Booking\n- Appointment Rescheduling\n- Appointment Cancelation\n- Intake\n- Medical Summary\n\n\n\nOutput only the **intent** as plain text — no formatting, no extra text.\n\nin the tool store that input that you get as chathistory"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        2464,
+        -2256
+      ],
+      "id": "118d0da3-8912-4804-9a33-06558882c36b",
+      "name": "AI Agent",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        2160,
+        -2256
+      ],
+      "id": "707cc56d-80bb-43ab-98a7-f2149d13771d",
+      "name": "Chat Memory Manager",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('When chat message received').item.json.sessionId }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2816,
+        -1936
+      ],
+      "id": "da4ca2a2-7359-4957-95db-10f9923871e3",
+      "name": "intake",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "he4FCBahK5WAU0jM",
+          "mode": "list",
+          "cachedResultName": "medical summary connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2944,
+        -1936
+      ],
+      "id": "d1da025a-a24d-45b2-bfa6-5a83c3c9e8b9",
+      "name": "medical summary",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        1152
+      ],
+      "id": "b98534bb-0a26-49c3-bb5f-98c055cf0181",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8tLYxVMvs6POF6uK",
+          "mode": "list",
+          "cachedResultName": "appointment connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        1152
+      ],
+      "id": "31a11ac0-f204-47d7-bd23-966331d008f9",
+      "name": "appointment booking1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n            Tools to call external workflows",
+        "height": 260,
+        "width": 444,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        1056
+      ],
+      "typeVersion": 1,
+      "id": "d571bbaf-653f-4e5a-bf05-dcb1c896bf13",
+      "name": "Sticky Note1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an Orchestrator Agent responsible for routing user intents to appropriate sub-workflows and properly formatting their responses.\n\nCORE RESPONSIBILITIES:\n1. Analyze detected intent: {{ $json.output }} (this is the user intention rout as per it)\n2. Process chat message:{{ $('WhatsApp Trigger').item.json.messages[0].text.body }} (send this as it is in the query to the workflow that you call)\n3. Route to appropriate sub-workflow based on intent\n4. Extract and format sub-workflow responses properly\n\nAVAILABLE SUB-WORKFLOWS:\n- appointment connect: For booking new appointments,changing existing appointments and canceling appointments\n\n- Intake - to intake patients information(only call when patient want to intake the data)\n\nROUTING LOGIC:\n- If intent is \"booking\", \"\" or \"reschedule\", \"cancel\" or contains keywords related to above → call appointment connect workflow\n- If intent is \"Intake\" → Call the Intake workflow\n- If intent is \"general\" or unclear → ask user to specify their need\n\nCRITICAL OUTPUT PROCESSING:\nWhen receiving sub-workflow responses in format:\n{\n  \"workflow_response\": {\n    \"result\": \"[{\\\"output\\\": \\\"actual_message_here\\\"}]\"\n  }\n}\n\nEXTRACT ONLY the value from the \"output\" field within the result array.\n\nRESPONSE FORMATTING INSTRUCTIONS:\n1. Parse the JSON result array from sub-workflow\n2. Extract the \"output\" value from the first object in the array\n3. Return ONLY the extracted output value as your response\n4. Do NOT include JSON structure, brackets, or escape characters\n5. Present the response as clean, readable text\n\n\n*****************************************************\ncall the medical summary1 tool when you get an pdf\n{{ $json.messages[0].document.mime_type }}",
+        "options": {
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1488,
+        896
+      ],
+      "id": "8a72c301-6ba4-4091-ae5e-9d4cf7753c9c",
+      "name": "Master Agent1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.messages[0].from }}12345",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1008,
+        1152
+      ],
+      "id": "0448726f-151c-4b15-b969-9a9038a5b1d9",
+      "name": "Simple Memory",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are an AI assistant that classifies the user's intent.\nMost Most important - \n\nInputs:\n- `chatHistory`: full conversation history → {{ JSON.stringify($json.messages) }}\n- Mostly reply on the chat History\n- MOST Important Don't general message (For message that consist yes, no, y, n, and also the things that user  ) if there is Chat History Present \nYour job:\nAnalyze the **current message** in the context of the **full chat history**.\n\nRules:\n\n1. If the message is a greeting like “hi” or “hello” **and there's no prior context**, classify as `general message`.\n2. Consider keywords like \"book\", \"schedule\", \"reschedule\", \"cancel\", or discussion-related replies in your decision.\n3. Output should always reflect the actual flow of conversation.\n4.when user enter below patient info then use appointment tool (dont halusinate)\nexample:\nsuraj more\n+918855669988\n65\nsurajmorecombat@gmail.com\n\nValid outputs (must choose exactly one and it should be based conversation history):\n- Appointment Booking\n- Appointment Rescheduling\n- Appointment Cancelation\n- Intake\n\n\n\nOutput only the **intent** as plain text — no formatting, no extra text.\n\nin the tool store that input that you get as chathistory"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1184,
+        896
+      ],
+      "id": "56089635-832f-461e-8b4b-098e180036dd",
+      "name": "AI Agent1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        896
+      ],
+      "id": "4741d25a-53a9-45c6-9112-9ee8588de6e6",
+      "name": "Chat Memory Manager1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "UMgxGdRLgDiQ0dsZ",
+          "mode": "list",
+          "cachedResultName": "intake"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1616,
+        1152
+      ],
+      "id": "a1a40d66-2807-4255-8c89-9eb94840dfcf",
+      "name": "intake1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        304,
+        880
+      ],
+      "id": "d44a3e73-8ddd-458a-a07f-4df09e5a18e9",
+      "name": "WhatsApp Trigger",
+      "webhookId": "66af08a6-00b8-45bc-ade4-26980cff08ba",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        896
+      ],
+      "id": "2932c7ee-ff38-4950-bae5-6c444f036819",
+      "name": "Send message",
+      "webhookId": "231d6a1d-a821-4141-b77e-8be6833be111",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f935d3b2-58f5-4dce-9199-cb33415dbf72",
+                    "leftValue": "={{ $json.messages[0].image.mime_type == \"image/jpeg\"}}",
+                    "rightValue": "\"image\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image doc"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8078c708-477b-47c1-934a-edd27a9e7381",
+                    "leftValue": "={{ $json.messages[0].type==\"text\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0e211b65-982a-4eb6-9969-1fe2015755ec",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/ogg; codecs=opus\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recording"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "039fec67-dc9d-4b5f-a9cc-e6dc9a5f53c0",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/mpeg\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "795e3a40-4810-43d0-9fd8-b795e2b3bf02",
+      "name": "switch",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        528,
+        816
+      ],
+      "typeVersion": 3.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].document.id   }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1136,
+        720
+      ],
+      "id": "263796c7-1551-435d-88cb-323555fb4c24",
+      "name": "Download media",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "he4FCBahK5WAU0jM",
+          "mode": "list",
+          "cachedResultName": "medical summary connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "summarize the medical report",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        480
+      ],
+      "id": "9d5b3be2-0aba-42a9-b9b0-00219a84ddd0",
+      "name": "Execute Workflow",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        944,
+        464
+      ],
+      "id": "5abe1d8b-9e3e-4d08-a05e-ce84b8d985ee",
+      "name": "Download media1",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        944,
+        1344
+      ],
+      "id": "3cdc8af9-2608-400b-8c37-add24c69dc97",
+      "name": "Download media2",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "C1OXvWZN0kjeGxPJ",
+          "mode": "list",
+          "cachedResultName": "soap connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "soap generator",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1776,
+        1344
+      ],
+      "id": "eb09ca6c-af70-4d7a-beb4-2aba58958a24",
+      "name": "Execute Workflow1",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2496,
+        3024
+      ],
+      "id": "4c31db7d-31df-44b1-a35f-36b244eb9c1d",
+      "name": "Google Gemini Chat Model2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8tLYxVMvs6POF6uK",
+          "mode": "list",
+          "cachedResultName": "appointment connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2672,
+        3024
+      ],
+      "id": "ba4a2515-332a-4117-ae42-53d29ee74d58",
+      "name": "appointment booking2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n            Tools to call external workflows",
+        "height": 260,
+        "width": 444,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2496,
+        2928
+      ],
+      "typeVersion": 1,
+      "id": "aee9301c-213c-4ceb-b543-cf10e2100f5d",
+      "name": "Sticky Note2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an Orchestrator Agent responsible for routing user intents to appropriate sub-workflows and properly formatting their responses.\n\nCORE RESPONSIBILITIES:\n1. Analyze detected intent: {{ $json.output }} (this is the user intention rout as per it)\n2. Process chat message:{{ $('WhatsApp Trigger1').item.json.messages[0].text.body }} (send this as it is in the query to the workflow that you call)\n3. Route to appropriate sub-workflow based on intent\n4. Extract and format sub-workflow responses properly\n\nAVAILABLE SUB-WORKFLOWS:\n- appointment connect: For booking new appointments,changing existing appointments and canceling appointments\n\n- If ask to Geberate Medical Report say please provide document file\n- if ask to Generate SOAP say please provide file.\n- if ask to summarize the prescription say can you provide the prescription\n\nROUTING LOGIC:\n- If intent is \"booking\", \"\" or \"reschedule\", \"cancel\" or contains keywords related to above → call appointment connect workflow\n- If intent is \"general\" or unclear → ask user to specify their need\n\nCRITICAL OUTPUT PROCESSING:\nWhen receiving sub-workflow responses in format:\n{\n  \"workflow_response\": {\n    \"result\": \"[{\\\"output\\\": \\\"actual_message_here\\\"}]\"\n  }\n}\n\nEXTRACT ONLY the value from the \"output\" field within the result array.\n\nRESPONSE FORMATTING INSTRUCTIONS:\n1. Parse the JSON result array from sub-workflow\n2. Extract the \"output\" value from the first object in the array\n3. Return ONLY the extracted output value as your response\n4. Do NOT include JSON structure, brackets, or escape characters\n5. Present the response as clean, readable text\n\n\n*****************************************************",
+        "options": {
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        2672,
+        2768
+      ],
+      "id": "072add9a-9480-489f-af80-37b2ac2b595f",
+      "name": "Master Agent2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}4",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        2192,
+        3024
+      ],
+      "id": "dfd9c491-cc3c-4722-b7c0-ae947418c8c8",
+      "name": "Simple Memory2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger1').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are an AI assistant that classifies the user's intent.\nMost Most important - \n\nInputs:\n- `chatHistory`: full conversation history → {{ JSON.stringify($json.messages) }}\n- Mostly reply on the chat History\n- MOST Important Don't general message (For message that consist yes, no, y, n, and also the things that user  ) if there is Chat History Present \nYour job:\nAnalyze the **current message** in the context of the **full chat history**.\n\nRules:\n\n1. If the message is a greeting like “hi” or “hello” **and there's no prior context**, classify as `general message`.\n2. Consider keywords like \"book\", \"schedule\", \"reschedule\", \"cancel\", or discussion-related replies in your decision.\n3. Output should always reflect the actual flow of conversation.\n\nValid outputs (must choose exactly one and it should be based conversation history):\n- Appointment Booking\n- Appointment Rescheduling\n- Appointment Cancelation\n- Medical Report Summarization\n- SOAP Generation\n- Prescription Summarization\n\n\nOutput only the **intent** as plain text — no formatting, no extra text.\n\nin the tool store that input that you get as chathistory"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        2368,
+        2768
+      ],
+      "id": "ca30cef8-53e1-46c2-beaf-8729544f0665",
+      "name": "AI Agent2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        2064,
+        2768
+      ],
+      "id": "78b350c9-8b8f-4270-9746-37e424c354fd",
+      "name": "Chat Memory Manager2",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        1424,
+        2768
+      ],
+      "id": "8805ffe0-ea80-4d80-b417-4e003b5ca777",
+      "name": "WhatsApp Trigger1",
+      "webhookId": "66af08a6-00b8-45bc-ade4-26980cff08ba",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        3072,
+        2768
+      ],
+      "id": "03a5c56e-9456-4104-a2e0-e486c744568e",
+      "name": "Send message1",
+      "webhookId": "231d6a1d-a821-4141-b77e-8be6833be111",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f935d3b2-58f5-4dce-9199-cb33415dbf72",
+                    "leftValue": "={{ $json.messages[0].image.mime_type == \"image/jpeg\" && $json.messages[0].image.caption == \"i want to summarise medical report\"}}",
+                    "rightValue": "\"image\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image doc"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8078c708-477b-47c1-934a-edd27a9e7381",
+                    "leftValue": "={{ $json.messages[0].type==\"text\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0e211b65-982a-4eb6-9969-1fe2015755ec",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/ogg; codecs=opus\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recording"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "039fec67-dc9d-4b5f-a9cc-e6dc9a5f53c0",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/mpeg\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "103a49b2-44b0-44b8-aab7-0e4617c3ee8a",
+                    "leftValue": "={{ $json.messages[0].image.caption }}",
+                    "rightValue": "i want to summarize this priscription",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "prescription image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "4518f762-59f5-4836-a0af-d5ccf7658bed",
+      "name": "switch1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1712,
+        2688
+      ],
+      "typeVersion": 3.2,
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].document.id   }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2320,
+        2592
+      ],
+      "id": "23c96439-b6d9-4d2b-a0df-b2a051524c89",
+      "name": "Download media3",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        2368
+      ],
+      "id": "53d2e19a-cf41-4873-9765-3dcfd4a83ea0",
+      "name": "Download media4",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2400,
+        3216
+      ],
+      "id": "5edd7d61-7e27-45b4-a8de-2d683fbd2d94",
+      "name": "Download media5",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        3120,
+        3232
+      ],
+      "id": "13a522fb-6398-4410-9ca5-77f9b89ddf65",
+      "name": "Receive",
+      "webhookId": "f5d98c35-b503-4e19-9cbb-4eb6b5a60606",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}",
+        "textBody": "⏳ We are processing your request, please wait a moment...",
+        "additionalFields": {}
+      },
+      "id": "3bebcbc9-5eff-4f09-bb66-c08ce04966ad",
+      "name": "Send Wait Message",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        3840,
+        2720
+      ],
+      "typeVersion": 1,
+      "webhookId": "b7b2a928-229b-4b52-b35b-f3ad0e446c6f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        2432
+      ],
+      "id": "f0620bdc-7f22-43da-982a-988dc4e46bc2",
+      "name": "Wait",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        2608
+      ],
+      "id": "dacc70f9-3eef-4988-a425-03873beaa5a0",
+      "name": "Wait1",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2032,
+        3056
+      ],
+      "id": "1c4cb457-d59f-4433-ab3b-2681cecff731",
+      "name": "Wait2",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2224,
+        3408
+      ],
+      "id": "33dddd60-7874-48c1-ab87-a348fecc6245",
+      "name": "Download media6",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        2016,
+        3312
+      ],
+      "id": "67541b20-ea15-4246-b62d-a291f6da45c8",
+      "name": "Wait3",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "he4FCBahK5WAU0jM",
+          "mode": "list",
+          "cachedResultName": "medical summary connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "summarize the medical report",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2960,
+        2352
+      ],
+      "id": "d83fc1cc-d493-4af5-a3a3-db2dd201d4fd",
+      "name": "medical report summarizer",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "C1OXvWZN0kjeGxPJ",
+          "mode": "list",
+          "cachedResultName": "soap connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "soap generator",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2864,
+        3216
+      ],
+      "id": "912cafe1-670b-4dde-a2ba-5b45edd41a43",
+      "name": "soap generation",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "AVcTj09Kpnargq3E",
+          "mode": "list",
+          "cachedResultName": "prescription summarization copy"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "prescription summarizer",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger1').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2512,
+        3408
+      ],
+      "id": "e6da3a22-777e-4a1f-a1f6-61785fba84b2",
+      "name": "prescription summarizer",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        5248
+      ],
+      "id": "eb99b376-1513-4c61-84f3-1d9473941a0a",
+      "name": "Google Gemini Chat Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "JoNhtaXNtsqMpdgv",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "8tLYxVMvs6POF6uK",
+          "mode": "list",
+          "cachedResultName": "appointment connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('query', ``, 'string') }}",
+            "memory": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [
+            "query"
+          ],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        2256,
+        5248
+      ],
+      "id": "d4e8a4fe-ce74-46d6-a70f-fc802a2bf90b",
+      "name": "appointment booking3"
+    },
+    {
+      "parameters": {
+        "content": "                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n                                                                                           \n            Tools to call external workflows",
+        "height": 260,
+        "width": 444,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        5152
+      ],
+      "typeVersion": 1,
+      "id": "4ecf8bda-a025-4e5d-9bce-9c8a673abff4",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an Orchestrator Agent responsible for routing user intents to appropriate sub-workflows and properly formatting their responses.\n\nCORE RESPONSIBILITIES:\n1. Analyze detected intent: {{ $json.output }} (this is the user intention rout as per it)\n2. Process chat message:{{ $('WhatsApp Trigger2').item.json.messages[0].text.body }} (send this as it is in the query to the workflow that you call)\n3. Route to appropriate sub-workflow based on intent\n4. Extract and format sub-workflow responses properly\n\nAVAILABLE SUB-WORKFLOWS:\n- appointment connect: For booking new appointments,changing existing appointments and canceling appointments\n\n- If ask to Geberate Medical Report say please provide document file\n- if ask to Generate SOAP say please provide file.\n- if ask to summarize the prescription say can you provide the prescription\n\nROUTING LOGIC:\n- If intent is \"booking\", \"\" or \"reschedule\", \"cancel\" or contains keywords related to above → call appointment connect workflow\n- If intent is \"general\" or unclear → ask user to specify their need\n\nCRITICAL OUTPUT PROCESSING:\nWhen receiving sub-workflow responses in format:\n{\n  \"workflow_response\": {\n    \"result\": \"[{\\\"output\\\": \\\"actual_message_here\\\"}]\"\n  }\n}\n\nEXTRACT ONLY the value from the \"output\" field within the result array.\n\nRESPONSE FORMATTING INSTRUCTIONS:\n1. Parse the JSON result array from sub-workflow\n2. Extract the \"output\" value from the first object in the array\n3. Return ONLY the extracted output value as your response\n4. Do NOT include JSON structure, brackets, or escape characters\n5. Present the response as clean, readable text\n\n\n*****************************************************",
+        "options": {
+          "returnIntermediateSteps": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        6032
+      ],
+      "id": "a336af7e-8e73-4050-98bd-9e3808a9afda",
+      "name": "Master Agent3"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('WhatsApp Trigger2').item.json.messages[0].from }}22",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1776,
+        5248
+      ],
+      "id": "f3e75998-ffb8-4bef-acc9-06b627aa9e18",
+      "name": "Simple Memory3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('WhatsApp Trigger2').item.json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are an AI assistant that classifies the user's intent.\nMost Most important - \n\nInputs:\n- `chatHistory`: full conversation history → {{ JSON.stringify($json.messages) }}\n- Mostly reply on the chat History\n- MOST Important Don't general message (For message that consist yes, no, y, n, and also the things that user  ) if there is Chat History Present \nYour job:\nAnalyze the **current message** in the context of the **full chat history**.\n\nRules:\n\n1. If the message is a greeting like “hi” or “hello” **and there's no prior context**, classify as `general message`.\n2. Consider keywords like \"book\", \"schedule\", \"reschedule\", \"cancel\", or discussion-related replies in your decision.\n3. Output should always reflect the actual flow of conversation.\n\nValid outputs (must choose exactly one and it should be based conversation history):\n- Appointment Booking\n- Appointment Rescheduling\n- Appointment Cancelation\n- Medical Report Summarization\n- SOAP Generation\n- Prescription Summarization\n\n\nOutput only the **intent** as plain text — no formatting, no extra text.\n\nin the tool store that input that you get as chathistory"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1616,
+        6032
+      ],
+      "id": "2816f600-d428-44ef-abc2-3e5032aaac32",
+      "name": "AI Agent3"
+    },
+    {
+      "parameters": {
+        "options": {
+          "groupMessages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryManager",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        6032
+      ],
+      "id": "0cf0d0fe-b77f-440b-be4d-f7a4c3b8e752",
+      "name": "Chat Memory Manager3"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        4992
+      ],
+      "id": "7f95c984-c647-4949-993c-213ea7774a06",
+      "name": "WhatsApp Trigger2",
+      "webhookId": "66af08a6-00b8-45bc-ade4-26980cff08ba",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger2').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2656,
+        4992
+      ],
+      "id": "82feb3a1-1e63-487a-a635-7017c48ce58d",
+      "name": "Send message2",
+      "webhookId": "231d6a1d-a821-4141-b77e-8be6833be111",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "f935d3b2-58f5-4dce-9199-cb33415dbf72",
+                    "leftValue": "={{ $json.messages[0].image.mime_type == \"image/jpeg\" && $json.messages[0].image.caption == \"i want to summarise medical report\"}}",
+                    "rightValue": "\"image\"",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "b9370f07-f235-4ac6-bc5b-f9013a13fad5",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == \"application/pdf\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "pdf"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9e7796c9-9fc3-450f-aecb-b251ac14665f",
+                    "leftValue": "={{ $json.messages[0].document.mime_type == 'image/jpeg' }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "image doc"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "0e211b65-982a-4eb6-9969-1fe2015755ec",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/ogg; codecs=opus\" }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "recording"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "039fec67-dc9d-4b5f-a9cc-e6dc9a5f53c0",
+                    "leftValue": "={{ $json.messages[0].audio.mime_type == \"audio/mpeg\"}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "audio"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "103a49b2-44b0-44b8-aab7-0e4617c3ee8a",
+                    "leftValue": "={{ $json.messages[0].image.caption }}",
+                    "rightValue": "i want to summarize this priscription",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "prescription image"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e65b4350-393f-41f0-a580-f00e3216085c",
+      "name": "switch2",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1296,
+        4912
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{$json.messages[0].document.id   }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1904,
+        4816
+      ],
+      "id": "bed3a26d-327f-459e-b117-d9c5571d4d38",
+      "name": "Download media7",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1888,
+        4592
+      ],
+      "id": "6a2ba90c-51d0-4aca-a2f7-577935b2a10c",
+      "name": "Download media8",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].audio.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        5440
+      ],
+      "id": "508888a6-7c66-405f-9c08-68ba24f99c10",
+      "name": "Download media9",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger2').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}",
+        "messageType": "document",
+        "mediaPath": "useMedian8n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        2704,
+        5456
+      ],
+      "id": "8b1241ac-21ea-42f3-bcad-b3dd8f08a806",
+      "name": "Receive1",
+      "webhookId": "f5d98c35-b503-4e19-9cbb-4eb6b5a60606",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger2').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}",
+        "textBody": "⏳ We are processing your request, please wait a moment...",
+        "additionalFields": {}
+      },
+      "id": "a215e291-75f0-4bbe-8b3c-d9f279fc2b45",
+      "name": "Send Wait Message1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        3424,
+        4944
+      ],
+      "typeVersion": 1,
+      "webhookId": "b7b2a928-229b-4b52-b35b-f3ad0e446c6f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        4656
+      ],
+      "id": "035dcb37-2b13-4821-9241-deaa7b038a9d",
+      "name": "Wait4",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        4832
+      ],
+      "id": "7704efdf-a12a-4491-b70f-259e1528dd3d",
+      "name": "Wait5",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        5280
+      ],
+      "id": "9159896a-52f7-49c2-b3a5-d33b56439c46",
+      "name": "Wait6",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.messages[0].image.id }}"
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        1808,
+        5632
+      ],
+      "id": "ad6355b6-9bf7-46a3-b981-a9e3f19c80f2",
+      "name": "Download media10",
+      "webhookId": "dd1db581-e532-445f-8cda-400357af839f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1600,
+        5536
+      ],
+      "id": "b6f23957-8df7-4861-89ed-3399ba44017a",
+      "name": "Wait7",
+      "webhookId": "d3581b60-b89f-4d99-8f70-f171121905d9"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "he4FCBahK5WAU0jM",
+          "mode": "list",
+          "cachedResultName": "medical summary connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "summarize the medical report",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2544,
+        4576
+      ],
+      "id": "48282df5-a894-48ee-9d85-8d38bbda85d1",
+      "name": "medical report summarizer1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "C1OXvWZN0kjeGxPJ",
+          "mode": "list",
+          "cachedResultName": "soap connect"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "soap generator",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2448,
+        5440
+      ],
+      "id": "5048f9b5-7b7e-4cc3-aa33-53013ee40083",
+      "name": "soap generation1"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "AVcTj09Kpnargq3E",
+          "mode": "list",
+          "cachedResultName": "prescription summarization copy"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "query": "prescription summarizer",
+            "file_url": "={{ $json.url }}",
+            "file_type": "={{ $json.mime_type }}",
+            "memory": "={{ $('WhatsApp Trigger2').item.json.contacts[0].wa_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "query",
+              "displayName": "query",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_url",
+              "displayName": "file_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "file_type",
+              "displayName": "file_type",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "memory",
+              "displayName": "memory",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        5632
+      ],
+      "id": "a72a40f9-2ae5-4e72-8f21-d873329b7d9a",
+      "name": "prescription summarizer1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appointment booking": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Chat Memory Manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "medical summary": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appointment booking1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Master Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intake1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch": {
+      "main": [
+        [
+          {
+            "node": "Download media1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download media",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat Memory Manager1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download media2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download media2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media1": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media2": {
+      "main": [
+        [
+          {
+            "node": "Execute Workflow1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Workflow1": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appointment booking2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent2",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Agent2": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory2": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager2",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent2": {
+      "main": [
+        [
+          {
+            "node": "Master Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager2": {
+      "main": [
+        [
+          {
+            "node": "AI Agent2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger1": {
+      "main": [
+        [
+          {
+            "node": "switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch1": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Chat Memory Manager2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media3": {
+      "main": [
+        [
+          {
+            "node": "medical report summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media4": {
+      "main": [
+        [
+          {
+            "node": "medical report summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media5": {
+      "main": [
+        [
+          {
+            "node": "soap generation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Download media4",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "Download media3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait2": {
+      "main": [
+        [
+          {
+            "node": "Download media5",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait3": {
+      "main": [
+        [
+          {
+            "node": "Download media6",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media6": {
+      "main": [
+        [
+          {
+            "node": "prescription summarizer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "medical report summarizer": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "soap generation": {
+      "main": [
+        [
+          {
+            "node": "Receive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prescription summarizer": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Master Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent3",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "appointment booking3": {
+      "ai_tool": [
+        [
+          {
+            "node": "Master Agent3",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Master Agent3": {
+      "main": [
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory3": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager3",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent3": {
+      "main": [
+        [
+          {
+            "node": "Master Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat Memory Manager3": {
+      "main": [
+        [
+          {
+            "node": "AI Agent3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger2": {
+      "main": [
+        [
+          {
+            "node": "switch2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Chat Memory Manager3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "switch2": {
+      "main": [
+        [
+          {
+            "node": "Wait4",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait5",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait6",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait7",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media7": {
+      "main": [
+        [
+          {
+            "node": "medical report summarizer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media8": {
+      "main": [
+        [
+          {
+            "node": "medical report summarizer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media9": {
+      "main": [
+        [
+          {
+            "node": "soap generation1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait4": {
+      "main": [
+        [
+          {
+            "node": "Download media8",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait5": {
+      "main": [
+        [
+          {
+            "node": "Download media7",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait6": {
+      "main": [
+        [
+          {
+            "node": "Download media9",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Wait Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download media10": {
+      "main": [
+        [
+          {
+            "node": "prescription summarizer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait7": {
+      "main": [
+        [
+          {
+            "node": "Download media10",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "medical report summarizer1": {
+      "main": [
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "soap generation1": {
+      "main": [
+        [
+          {
+            "node": "Receive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prescription summarizer1": {
+      "main": [
+        [
+          {
+            "node": "Send message2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "f5a328ef-f6db-4f10-87eb-ea029c64989b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "1y9mL5bXqQckizqs",
+  "tags": []
+}

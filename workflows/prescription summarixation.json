@@ -1,0 +1,921 @@
+{
+  "name": "prescription summarixation",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.audio.id }}"
+      },
+      "id": "63f22a67-ccc5-413c-a474-82363f3f9ce5",
+      "name": "Get Audio URL",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2848,
+        1248
+      ],
+      "typeVersion": 1,
+      "webhookId": "22f7ac57-decf-46f7-af7d-eebb6b4782f0",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "4d9f31ee-e5ae-4993-826e-0ce7d5943951",
+      "name": "Download Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2688,
+        1248
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({\n  contents: [\n    {\n      parts: [\n        { text: \"Transcribe this audio\" },\n        {\n          inlineData: {\n            mimeType: $json.mimeType || \"audio/ogg\",\n            data: $json.data \n          }\n        }\n      ]\n    }\n  ]\n}) }}\n",
+        "options": {}
+      },
+      "id": "4b5fbc47-068c-40a9-80f2-b8c5244ffc33",
+      "name": "Google Gemini Audio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2240,
+        1232
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "s0KLMfyo2TK6GhlQ",
+          "name": "J"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "d506fbc7-3112-4a6b-a486-4b6cb30ef8a3",
+      "name": "Format Response1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2000,
+        1232
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.from }}3",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -1856,
+        2352
+      ],
+      "id": "812c9b27-87dc-43b7-b152-02ca84abb672",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "id": "bf245985-251d-4f3d-961e-871932adbb46",
+      "name": "WhatsApp Trigger1",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -3648,
+        1712
+      ],
+      "webhookId": "0b1b3a9b-2f6a-4f5a-8385-6365d96f4802",
+      "typeVersion": 1,
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "25JD1aTdJS8Y1Ejd",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.video.id }}"
+      },
+      "id": "19baa9cd-d726-40eb-bd9a-28c09ee043db",
+      "name": "Get Video URL1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2848,
+        1600
+      ],
+      "typeVersion": 1,
+      "webhookId": "73a2e7ee-fa1a-4522-86f0-e19996cb3bb3",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "media",
+        "operation": "mediaUrlGet",
+        "mediaGetId": "={{ $json.image.id }}"
+      },
+      "id": "46802078-6d9b-4445-a875-a8f0873fa000",
+      "name": "Get Image URL2",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -2848,
+        1952
+      ],
+      "typeVersion": 1,
+      "webhookId": "c84de98c-e718-4dfa-bab7-63e36ebcf9b1",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "1f5c107d-46f9-4a60-bb3f-d816f1109ecf",
+      "name": "Download Video1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2688,
+        1600
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "b0eILkilI1V956V8",
+          "name": "Ashwin"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi",
+        "options": {}
+      },
+      "id": "2d09cdba-6d5e-49e0-836f-74829c68f075",
+      "name": "Download Image2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2688,
+        1952
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d990cbd6-a408-4ec4-a889-41be698918d9",
+              "name": "message_type",
+              "type": "string",
+              "value": "={{ $('Split Out Message Parts1').item.json.type }}"
+            },
+            {
+              "id": "23b785c3-f38e-4706-80b7-51f333bba3bd",
+              "name": "message_text",
+              "type": "string",
+              "value": "={{ $json.text.body || $json.text || '' }}"
+            },
+            {
+              "id": "6e83f9a7-cf75-4182-b2d2-3151e8af76b9",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}"
+            },
+            {
+              "id": "da4b602a-28ca-4b0d-a747-c3d3698c3731",
+              "name": "message_caption",
+              "type": "string",
+              "value": "={{ $('Redirect Message Types1').item.json.video && $('Redirect Message Types1').item.json.video.caption || '' }}\n{{ $('Redirect Message Types1').item.json.image && $('Redirect Message Types1').item.json.image.caption || ''}}\n{{ $('Redirect Message Types1').item.json.audio && $('Redirect Message Types1').item.json.audio.caption || ''}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b1337000-40ba-4bfc-b6f2-18fc4ac86dcb",
+      "name": "Get User's Message1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1776,
+        1792
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "messages",
+        "options": {}
+      },
+      "id": "4d816cb4-7889-4f6a-acd3-f17ac89c2fcf",
+      "name": "Split Out Message Parts1",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -3408,
+        1712
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'audio' && Boolean($json.audio) }}",
+                    "rightValue": "audio",
+                    "id": "ee4f02d2-6f1b-4425-bd52-163024b4c4d8"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Audio Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "82aa5ff4-c9b6-4187-a27e-c7c5d9bfdda0",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'video' && Boolean($json.video) }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Video Message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "05b30af4-967b-4824-abdc-84a8292ac0e5",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.type == 'image' && Boolean($json.image) }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Image Message"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Text Message"
+        }
+      },
+      "id": "3fc8f1cb-778c-4ef6-bb7d-5dd67a173977",
+      "name": "Redirect Message Types1",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -3136,
+        1792
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "={{ $('WhatsApp Trigger1').item.json.metadata.phone_number_id }}",
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger1').item.json.messages[0].from }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "49b02e8e-2735-4d44-b771-bcd156fb3db2",
+      "name": "Respond to User1",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -1184,
+        1376
+      ],
+      "typeVersion": 1,
+      "webhookId": "7488997c-735f-4bfb-b36c-3b156f0bdab6",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an expert medical document transcription AI with advanced optical character recognition (OCR) and medical terminology knowledge. Your task is to extract, digitize, and structure all information from a prescription image, which may be handwritten, printed, or digitally scanned. Accuracy and fidelity to the original content are paramount.\n\nStep 1: Prescription Analysis\n\nAnalyze the entire prescription image, identifying text, numbers, symbols, and dosage instructions.\n\nDetect the prescription type: handwritten, printed, or digital.\n\nCapture all regional medical shorthand and prescription symbols exactly as written. Use the regional convention specified:\n\"<Replace with REGIONAL MEDICAL SHORTHAND or upload a reference file>\"\n\nFlag any unclear, ambiguous, or illegible notations for human verification.\n\nStep 2: Data Extraction\nExtract the following fields for every prescription:\n\nPatient Name\n\nDrug Name(s)\n\nDosage Instructions\n\nPrescription Symbols (region-specific)\n\nPrescription Type (handwritten/printed/digital)\n\nStep 3: Accuracy and Integrity Guidelines\n\nDo not assume or infer illegible text.\n\nPreserve original formatting, symbols, and shorthand.\n\nAssign a confidence score (0–100%) for each extracted element.\n\nAdapt extraction strategies to handwriting, print, or digital text.\n\nMaintain fidelity to medical accuracy to avoid misinterpretation.\n\nStep 4: Output Structure\nProvide the extracted data in this structured JSON-like format:\n\n{\n  \"PrescriptionType\": \"(handwritten/printed/digital)\",\n  \"PatientName\": {\n    \"text\": \"(extracted patient name)\",\n    \"confidence\": \"(score)\"\n  },\n  \"Drugs\": [\n    {\n      \"Name\": \"(drug name)\",\n      \"DosageInstructions\": \"(dosage instructions)\",\n      \"Symbols\": \"(symbols as written)\",\n      \"confidence\": \"(score)\"\n    }\n    // Repeat for each drug\n  ],\n  \"NotesFlags\": [\n    \"(list any unclear or ambiguous notations for review)\"\n  ]\n}\n\n\nCritical Constraints:\n\nExtract every visible symbol and notation exactly as in the prescription.\n\nGenerate one structured record per prescription.\n\nInclude confidence scores for all extracted fields.\n\nDo not modify any prescription content.\n\nEnsure output is suitable for digital healthcare documentation.\n\n{{ $now }}",
+        "messages": {
+          "messageValues": [
+            {
+              "type": "HumanMessagePromptTemplate",
+              "messageType": "imageBinary"
+            }
+          ]
+        }
+      },
+      "id": "e72589a2-d3e4-45fd-8062-6ff5c2654a60",
+      "name": "Image Explainer1",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        -2160,
+        1952
+      ],
+      "typeVersion": 1.4
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2ec0e573-373b-4692-bfae-86b6d3b9aa9a",
+              "name": "text",
+              "type": "string",
+              "value": "={{ $json.candidates[0].content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5c33a110-f666-4e12-8c14-b54fc9aaf1cb",
+      "name": "Format Response3",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -2000,
+        1600
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-002:generateContent",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n \"contents\": [{\n \"parts\":[\n {\"text\": \"Describe this video\"},\n {\"inlineData\": {\n \"mimeType\": `video/${$binary.data.fileExtension}`,\n \"data\": $input.item.binary.data.data }\n }\n ]\n }]\n}\n}}",
+        "options": {}
+      },
+      "id": "21902af6-c32f-42dc-bf84-a47e056cbc15",
+      "name": "Google Gemini Video1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2240,
+        1600
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "googlePalmApi": {
+          "id": "s0KLMfyo2TK6GhlQ",
+          "name": "J"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_type }}\nContent: ```{{ $json.message_text }}```\n{{ $json.message_caption ? `Caption: ${$json.message_caption.trim()}` : '' }}",
+        "options": {
+          "systemMessage": "=# Prescription Scheduler\n\n## Your Task\nCreate  events for medication reminders based on the prescription provided.\n\n## Instructions:\n1. Extract patient name, medicines, dosage, and duration from the prescription\n2. Ask for missing information: patient phone number and preferred times for morning/evening doses\n3. Create daily events for the specified duration\n4. Group medicines by time slots (morning/evening)\n\n## Event Format:\n- Title: \"Morning/Evening Meds - [Patient Name] - Day X\"\n- Time: User-specified morning/evening times\n- Description: List all medicines for that time slot with dosages\n\n## Input:\nMessage: {{ $json.message_text }}\n{{ $json.message_caption ? `Caption: ${$json.message_caption}` : '' }}\n\nCreate the events using the doses tool for the specified duration.\n\n{{ $now }}"
+        }
+      },
+      "id": "d0dca28b-833c-4819-b937-3c4cb6922465",
+      "name": "AI Agent1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1584,
+        1792
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "if (!item.binary || !item.binary.data || !item.binary.data.data) {\n  throw new Error('Binary data is missing.');\n}\n\nconst binaryData = item.binary.data.data;\nconst mimeType = item.binary.data.mimeType || 'audio/ogg';\n\n// Decode and re-encode base64\nconst audioBase64 = Buffer.from(binaryData, 'base64').toString('base64');\n\n// Attach to item.json\nitem.json.audioBase64 = audioBase64;\nitem.json.mimeType = mimeType;\n\nreturn item;\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2480,
+        1248
+      ],
+      "id": "9b15046c-63ae-4c5b-b230-ef27baca93f7",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "operation": "binaryToPropery",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -2432,
+        1072
+      ],
+      "id": "6f6f8707-bac7-49fd-b5ac-957275baa7f5",
+      "name": "Extract from File1"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Create an event in Google Calendar",
+        "calendar": {
+          "__rl": true,
+          "value": "surajmorecombat@gmail.com",
+          "mode": "list",
+          "cachedResultName": "surajmorecombat@gmail.com"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Start', ``, 'string') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('End', ``, 'string') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Description', ``, 'string') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Summary', ``, 'string') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -656,
+        2560
+      ],
+      "id": "3836f8dd-5eb7-4167-8c60-35deeb8ca557",
+      "name": "Create an event in Google Calendar1",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "pQ50YuBgrhsyhAJj",
+          "name": "Google Calendar account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -2064,
+        2352
+      ],
+      "id": "ede8cf37-b9a9-4d5e-bb8a-c2e712051f2e",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://173.255.192.198:3034/prescriptions",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json",
+        "body": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Body', `pass all doses data(tabletName,morningTime,afternoonTime,nightTime,days,foodTiming,date,patientBookingId)`, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -1392,
+        2048
+      ],
+      "id": "30c6a3d3-dd1d-4db4-a703-845dbb114086",
+      "name": "doses"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message_type }}\nContent: ```{{ $json.message_text }}```\n{{ $json.message_caption ? `Caption: ${$json.message_caption.trim()}` : '' }}",
+        "options": {
+          "systemMessage": "=# Prescription Scheduler\n\n## Your Task\nCreate  events for medication reminders based on the prescription provided.\n\n## Instructions:\n1. Extract patient name, medicines, dosage, and duration from the prescription\n2. Ask for missing information: patient phone number and preferred times for morning/evening doses\n3. Create daily events for the specified duration\n4. Group medicines by time slots (morning/evening)\n\n## Event Format:\n- Title: \"Morning/Evening Meds - [Patient Name] - Day X\"\n- Time: User-specified morning/evening times\n- Description: List all medicines for that time slot with dosages\n\n## Input:\nMessage: {{ $json.message_text }}\n{{ $json.message_caption ? `Caption: ${$json.message_caption}` : '' }}\n\nCreate the events using the doses tool for the specified duration.\n\n{{ $now }}"
+        }
+      },
+      "id": "81f167b1-18a7-4316-8822-c6d48a1de95b",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1632,
+        1472
+      ],
+      "typeVersion": 1.6
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Audio URL": {
+      "main": [
+        [
+          {
+            "node": "Download Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Audio": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Audio": {
+      "main": [
+        [
+          {
+            "node": "Format Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response1": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Split Out Message Parts1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video URL1": {
+      "main": [
+        [
+          {
+            "node": "Download Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Image URL2": {
+      "main": [
+        [
+          {
+            "node": "Download Image2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Video1": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Video1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Image2": {
+      "main": [
+        [
+          {
+            "node": "Image Explainer1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User's Message1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Message Parts1": {
+      "main": [
+        [
+          {
+            "node": "Redirect Message Types1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Redirect Message Types1": {
+      "main": [
+        [
+          {
+            "node": "Get Audio URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Video URL1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Image URL2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get User's Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Explainer1": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Response3": {
+      "main": [
+        [
+          {
+            "node": "Get User's Message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Video1": {
+      "main": [
+        [
+          {
+            "node": "Format Response3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        []
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Extract from File1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File1": {
+      "main": [
+        [
+          {
+            "node": "Google Gemini Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create an event in Google Calendar1": {
+      "ai_tool": [
+        []
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Explainer1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "doses": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "ce44b315-b777-41fc-be0a-4ef1968726c8",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "97ANObUjM29ntf4u",
+  "tags": []
+}

@@ -1,0 +1,288 @@
+{
+  "name": "Follow up reminder",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 30
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -240,
+        176
+      ],
+      "id": "2e72ebe1-9fac-4356-bb64-1c744d66d6b5",
+      "name": "Schedule Trigger1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an intelligent assistant operating within a comprehensive  appointment reminder system. Your task is to proactively notify patients about their upcoming appointments across multiple intervals via WhatsApp. Follow the instructions below strictly.\n\nSequential Reminder Processing:\nProcess events strictly in this order:\n\nreminders1weekbefore\n\nreminders1daybefore\n\nreminders1hrbefore\n\nreminders1hrafter\n\n\nFor Each Reminder Tool:\n\nFetch all available events.\n\nConvert all timestamps to Indian Standard Time (Asia/Kolkata, UTC+5:30).\n\nExtract these mandatory fields:\n\npurposeOfMeet\n\ndate\n\nstartTime\n\nendTime\n\nphoneNo\n\nValidate the phone number:\n\nEnsure country code 91 is included if missing.\n\nGenerate a standalone WhatsApp reminder for each appointment using this format:\n\nReminder: You have an appointment on (Date) at (startTime)\npurposeOfMeet\nPhone number: (phoneNo)\n\n\nUse \\n for line breaks.\n\nDispatch the reminder immediately if the current time matches the reminder interval.\n\nCritical Constraints:\n\nOne reminder per appointment only — do not combine multiple reminders.\n\nDo not include any \"ACTION REQUIRED\" text.\n\nMaintain identical processing protocols for reminders1weekbefore as the other tools.\n\nEnsure timely, accurate, and personalized notifications, maximizing appointment attendance.\n\n# Current Context\n- **Current time**: {{ $now }}\n- **Today's date**: {{ $now.format('yyyy-MM-dd') }}",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        176
+      ],
+      "id": "6932e370-5486-4b95-b446-d1ed7b3b6d40",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "722383954288560",
+        "recipientPhoneNumber": "={{ $json.output.match(/\\+?\\d{10,15}/)[0] }}\n",
+        "textBody": "={{ $json.output.replace(/Phone number:.*/, '').trim() }}\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        368,
+        176
+      ],
+      "id": "2d05c2a8-2ff3-4ad7-aaf4-622997dac61c",
+      "name": "Send message1",
+      "webhookId": "e9f7ec46-3399-427c-8f62-353fd538fa0f",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "ZrlWhery0a9U2IJT",
+          "name": "Suraj"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/patient-bookings/reminders",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "reminderType",
+              "value": "1hrBefore"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        368,
+        496
+      ],
+      "id": "97757da2-6eed-4671-90f0-1fd0e5eb35d1",
+      "name": "reminders1hrbefore"
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/patient-bookings/reminders",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "reminderType",
+              "value": "1dayBefore"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        496
+      ],
+      "id": "9e4a13a9-8eea-459c-a985-3e80eb310ad5",
+      "name": "reminders1daybefore"
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/patient-bookings/reminders",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "reminderType",
+              "value": "1hrAfter"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        32,
+        480
+      ],
+      "id": "66e9ca92-78d3-4572-ae6e-deefecc763da",
+      "name": "reminders1hrafter"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "14ab3662-de51-4e45-96a1-162b8e0b2087",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "TIOjQy0bf7ZM1Xs3",
+          "name": "client_api_key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "http://173.255.192.198:3034/patient-bookings/reminders",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "reminderType",
+              "value": "1hrAfter"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        -160,
+        448
+      ],
+      "id": "bf010b20-f6a3-4d08-a426-00c772f717f3",
+      "name": "reminders1weekbefore"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reminders1hrbefore": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reminders1daybefore": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reminders1hrafter": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reminders1weekbefore": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Asia/Kolkata",
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "11585e45-12e9-4f25-952a-91bf257e2357",
+  "meta": {
+    "instanceId": "f2969ff032508a459948d2b3c5f83ba7dd4c3f7f12dfe2eaa2f07527fa7aa0b8"
+  },
+  "id": "2uJwfJZ5TOMoMjg2",
+  "tags": []
+}
